@@ -1,0 +1,59 @@
+<h1>Editar Grupo</h1>
+<div class="well">
+    <form #formGrupo="ngForm">
+
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" class="form-control" id="nome" name="nome" [(ngModel)]="grupo.nome" #nome="ngModel"
+                minlength="2" required>
+            <div *ngIf="nome.errors && (nome.dirty || nome.touched)" class="alert alert-danger">
+                <div [hidden]="!nome.errors?.required"> Digite o nome do grupo. </div>
+                <div [hidden]="!nome.errors?.minlength"> O nome deve conter ao menos 2 caracteres. </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="segmento">Segmento:</label>
+            <input type="text" class="form-control" id="segmento" name="segmento" [(ngModel)]="grupo.segmento"
+                #segmento="ngModel" required>
+            <div *ngIf="segmento.errors && (segmento.dirty || segmento.touched)" class="alert alert-danger">
+                <div [hidden]="!segmento.errors?.required"> Digite o segmento do grupo. </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="descricao">Descricao:</label>
+            <input type="text" class="form-control" id="descricao" name="descricao" [(ngModel)]="grupo.descricao"
+                #descricao="ngModel" required>
+            <div *ngIf="descricao.errors && (descricao.dirty || descricao.touched)" class="alert alert-danger">
+                <div [hidden]="!descricao.errors?.required"> Digite a descrição do grupo. </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="administrador">Administrador:</label>
+            <input type="text" class="form-control" id="administrador" name="administrador"
+                [(ngModel)]="grupo.administrador" #administrador="ngModel">
+        </div>
+
+        <div class="form-group">
+            <label for="fl_aberto">Aberto:</label>
+            <input type="text" class="form-control" id="fl_aberto" name="fl_aberto" [(ngModel)]="grupo.fl_aberto"
+                #fl_aberto="ngModel" required>
+            <div *ngIf="fl_aberto.errors && (fl_aberto.dirty || fl_aberto.touched)" class="alert alert-danger">
+                <div [hidden]="!fl_aberto.errors?.required"> Digite o fl_aberto. </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" (click)="atualizar()" [disabled]="!formGrupo.form.valid">
+                <i class="fa fa-save" aria-hidden="true"></i> Atualizar
+            </button>
+
+            <a class="btn btn-secondary" [routerLink]="['/grupos']">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar
+            </a>
+        </div>
+
+    </form>
+</div>

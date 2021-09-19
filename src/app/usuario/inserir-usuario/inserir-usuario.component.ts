@@ -19,7 +19,7 @@ export class InserirUsuarioComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
-    private router: Router,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
