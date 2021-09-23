@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UsuarioModule } from './usuario/usuario.module';
 import { GrupoModule } from './grupo/grupo.module';
+import { EquipeModule } from './equipe/equipe.module';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { GrupoModule } from './grupo/grupo.module';
     BrowserModule,
     AppRoutingModule,
     UsuarioModule,
-    GrupoModule
+    GrupoModule,
+    EquipeModule
   ],
   providers: [],
   bootstrap: [AppComponent]
