@@ -9,6 +9,9 @@ import { ListarEmpresaComponent } from './empresa/listar-empresa/listar-empresa.
 import { EditarUsuarioComponent } from './usuario/editar-usuario/editar-usuario.component';
 import { InserirUsuarioComponent } from './usuario/inserir-usuario/inserir-usuario.component';
 import { ListarUsuarioComponent } from './usuario/listar-usuario/listar-usuario.component';
+import { ListarSistemaComponent } from './sistema/listar-sistema/listar-sistema.component';
+import { EditarSistemaComponent } from './sistema/editar-sistema/editar-sistema.component';
+import { InserirSistemaComponent } from './sistema/inserir-sistema/inserir-sistema.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'usuarios/listar', pathMatch: 'full' },
@@ -25,7 +28,12 @@ const routes: Routes = [
   { path: 'equipes', redirectTo: 'equipes/listar' }, 
   { path: 'equipes/listar', component: ListarEquipeComponent },
   { path: 'equipes/novo', component: InserirEquipeComponent},
-  { path: 'equipes/editar/:id', component: EditarEquipeComponent}
+  { path: 'equipes/editar/:id', component: EditarEquipeComponent},
+
+  { path: 'sistemas', redirectTo: 'sistemas/listar' }, 
+  { path: 'sistemas/listar', component: ListarSistemaComponent},
+  { path: 'sistemas/novo', component: InserirSistemaComponent},
+  { path: 'sistemas/editar/:id', component: EditarSistemaComponent}
 ];
 
 @NgModule({

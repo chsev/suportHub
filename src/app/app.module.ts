@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { UsuarioModule } from './usuario/usuario.module';
 import { EquipeModule } from './equipe/equipe.module';
 import { EmpresaModule } from './empresa/empresa.module';
+import { SistemaModule } from './sistema/sistema.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { EmpresaModule } from './empresa/empresa.module';
     AppRoutingModule,
     UsuarioModule,
     EmpresaModule,
-    EquipeModule
+    EquipeModule,
+    SistemaModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]

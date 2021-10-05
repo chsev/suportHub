@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Grupo } from 'src/app/shared/models/grupo.model';
+import { Equipe } from 'src/app/shared/models/equipe.model';
 
 const LS_CHAVE: string = "equipes";
 
@@ -10,37 +10,37 @@ export class EquipeService {
 
   constructor() { }
 
-  listarTodos(): Grupo[] {
-    const grupos = localStorage[LS_CHAVE];
-    return grupos ? JSON.parse(grupos) : [];
+  listarTodos(): Equipe[] {
+    const equipes = localStorage[LS_CHAVE];
+    return equipes ? JSON.parse(equipes) : [];
   }
 
-  inserir(grupo: Grupo): void {
-    const grupos = this.listarTodos();
-    grupo.id =  new Date().getTime();
-    grupos.push(grupo);
-    localStorage[LS_CHAVE] =  JSON.stringify(grupos);
+  inserir(equipe: Equipe): void {
+    const equipes = this.listarTodos();
+    equipe.id =  new Date().getTime();
+    equipes.push(equipe);
+    localStorage[LS_CHAVE] =  JSON.stringify(equipes);
   }
 
-  buscarPorId(id: number): Grupo | undefined{
-    const grupos: Grupo[] = this.listarTodos();
-    return grupos.find(grupo => grupo.id === id)
+  buscarPorId(id: number): Equipe | undefined{
+    const equipes: Equipe[] = this.listarTodos();
+    return equipes.find(equipe => equipe.id === id)
   }
 
-  atualizar(grupo: Grupo): void {
-    const grupos: Grupo[] = this.listarTodos();
+  atualizar(equipe: Equipe): void {
+    const equipes: Equipe[] = this.listarTodos();
 
-    grupos.forEach(( obj,index, objs)=> {
-      if (grupo.id == obj.id) {
-        objs[index] = grupo;
+    equipes.forEach(( obj,index, objs)=> {
+      if (equipe.id == obj.id) {
+        objs[index] = equipe;
       }
     });
-    localStorage[LS_CHAVE] = JSON.stringify(grupos);
+    localStorage[LS_CHAVE] = JSON.stringify(equipes);
   }
 
   remover(id: number): void{
-    let grupos: Grupo[] = this.listarTodos();
-    grupos = grupos.filter(grupo => grupo.id !== id);
-    localStorage[LS_CHAVE] = JSON.stringify(grupos);
+    let equipes: Equipe[] = this.listarTodos();
+    equipes = equipes.filter(equipe => equipe.id !== id);
+    localStorage[LS_CHAVE] = JSON.stringify(equipes);
   }
 }
