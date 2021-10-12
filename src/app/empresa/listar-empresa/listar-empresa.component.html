@@ -19,7 +19,7 @@
             <td>{{empresa.segmento}} </td>
             <td>{{empresa.descricao}} </td>
             <td>{{empresa.administrador}} </td>
-            <td>{{empresa.fl_aberto}} </td>
+            <td>{{empresa.fl_aberto! ? "Aberto" : "Fechado"}} </td>
 
             <td class="text-center" style="width: 300px">
                 <a [routerLink]="['/empresas/editar', empresa.id]" href="#" title="Editar" alt="Editar" class="btn btn-xs btn-info">

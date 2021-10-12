@@ -19,7 +19,7 @@ import { EditarEmpresaComponent } from './editar-empresa/editar-empresa.componen
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [
     EmpresaService

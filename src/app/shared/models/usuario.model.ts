@@ -3,8 +3,9 @@ export class Usuario {
         public id?: number,
         public nome?: string,
         public login?: string,
+        public senha?: string,
         public email?: string,
         public funcao?: string,
-        public senha?: string
+        public perfil?: string
     ) {}
 }

@@ -24,7 +24,7 @@
         </div>
 
         <div class="form-group">
-            <label for="descricao">Descricao:</label>
+            <label for="descricao">Descrição:</label>
             <input type="text" class="form-control" id="descricao" name="descricao" 
                 [(ngModel)]="empresa.descricao" #descricao="ngModel"
                 required>
@@ -40,13 +40,10 @@
         </div>
 
         <div class="form-group">
-            <label for="fl_aberto">Aberto:</label>
-            <input type="text" class="form-control" id="fl_aberto" name="fl_aberto" 
-            [(ngModel)]="empresa.fl_aberto" #fl_aberto="ngModel"
-            required>
-            <div *ngIf="fl_aberto.errors && (fl_aberto.dirty || fl_aberto.touched)" class="alert alert-danger">
-                <div [hidden]="!fl_aberto.errors?.required"> Digite o fl_aberto. </div>
-            </div>
+            <label for="fl_aberto">Aberto: &nbsp;</label>
+            <input type="checkbox" class="form-check-input" id="fl_aberto" name="fl_aberto" 
+            [(ngModel)]="empresa.fl_aberto" #fl_aberto="ngModel">
+
         </div>
 
         <div class="form-group">

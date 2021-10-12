@@ -12,28 +12,36 @@ import { ListarUsuarioComponent } from './usuario/listar-usuario/listar-usuario.
 import { ListarSistemaComponent } from './sistema/listar-sistema/listar-sistema.component';
 import { EditarSistemaComponent } from './sistema/editar-sistema/editar-sistema.component';
 import { InserirSistemaComponent } from './sistema/inserir-sistema/inserir-sistema.component';
+import { LoginRoutes } from './auth/auth-routing.module';
+import { AuthGuard } from './auth/auth.guard';
+import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'usuarios/listar', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+
   { path: 'usuarios', redirectTo: 'usuarios/listar' }, 
-  { path: 'usuarios/listar', component: ListarUsuarioComponent },
-  { path: 'usuarios/novo', component: InserirUsuarioComponent },
-  { path: 'usuarios/editar/:id', component: EditarUsuarioComponent },
+  { path: 'usuarios/listar', component: ListarUsuarioComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE'} },
+  { path: 'usuarios/novo', component: InserirUsuarioComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE'} },
+  { path: 'usuarios/editar/:id', component: EditarUsuarioComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE'} },
 
   { path: 'empresas', redirectTo: 'empresas/listar' }, 
-  { path: 'empresas/listar', component: ListarEmpresaComponent },
-  { path: 'empresas/novo', component: InserirEmpresaComponent},
-  { path: 'empresas/editar/:id', component: EditarEmpresaComponent},
+  { path: 'empresas/listar', component: ListarEmpresaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN'} },
+  { path: 'empresas/novo', component: InserirEmpresaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN'}},
+  { path: 'empresas/editar/:id', component: EditarEmpresaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN'}},
 
   { path: 'equipes', redirectTo: 'equipes/listar' }, 
-  { path: 'equipes/listar', component: ListarEquipeComponent },
-  { path: 'equipes/novo', component: InserirEquipeComponent},
-  { path: 'equipes/editar/:id', component: EditarEquipeComponent},
+  { path: 'equipes/listar', component: ListarEquipeComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'} },
+  { path: 'equipes/novo', component: InserirEquipeComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}},
+  { path: 'equipes/editar/:id', component: EditarEquipeComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}},
 
   { path: 'sistemas', redirectTo: 'sistemas/listar' }, 
-  { path: 'sistemas/listar', component: ListarSistemaComponent},
-  { path: 'sistemas/novo', component: InserirSistemaComponent},
-  { path: 'sistemas/editar/:id', component: EditarSistemaComponent}
+  { path: 'sistemas/listar', component: ListarSistemaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}},
+  { path: 'sistemas/novo', component: InserirSistemaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}},
+  { path: 'sistemas/editar/:id', component: EditarSistemaComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}},
+  
+  ...LoginRoutes,
+
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard], data: {role: 'ADMIN,GERENTE,FUNC'}}
 ];
 
 @NgModule({

@@ -8,10 +8,13 @@ import { EquipeModule } from './equipe/equipe.module';
 import { EmpresaModule } from './empresa/empresa.module';
 import { SistemaModule } from './sistema/sistema.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HomeComponent } from './home/home.component';
+import { AuthModule } from './auth/auth.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -20,7 +23,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     EmpresaModule,
     EquipeModule,
     SistemaModule,
-    NgbModule
+    NgbModule,
+    AuthModule
   ],
   providers: [],
   bootstrap: [AppComponent]
