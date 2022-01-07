@@ -1,0 +1,43 @@
+<section class="signup-form">
+    <h1 fxLayoutAlign="center">Novo Usuário</h1>
+    <form 
+        fxLayout="column" 
+        fxLayoutAlign="center center" 
+        fxLayoutGap="10px" 
+        [formGroup] = "signupForm" 
+        (ngSubmit)="onSubmit()">
+        
+        <mat-form-field>
+            <input type='text' matInput placeholder="Nome" 
+                formControlName = "name">
+            <mat-error *ngIf="signupForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+        </mat-form-field>
+
+        
+        <mat-form-field>
+            <input type='email' matInput placeholder="E-mail" 
+                formControlName = "email">
+            <mat-error *ngIf="signupForm.controls['email'].hasError('required')">Campo obrigatório</mat-error>
+            <mat-error *ngIf="!signupForm.controls['email'].hasError('required')">E-mail é inválido</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input type='password' matInput placeholder="Senha" 
+                formControlName = "password">
+            <mat-hint align="end"> {{ signupForm.value.password.length }} / 8</mat-hint>    
+            <mat-error *ngIf="signupForm.controls['password'].hasError('minlength')">Deve ter pelo menos 8 caracteres</mat-error>
+            <mat-error *ngIf="signupForm.controls['password'].hasError('required')">Campo obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input type='text' matInput placeholder="Função" 
+                formControlName = "position">
+        </mat-form-field>
+
+        <mat-checkbox  formControlName="terms" name="Terms" color="primary" required >Li e aceito os Termos e Condições</mat-checkbox>
+
+        <button *ngIf='!isLoading' type="submit" mat-raised-button color="primary" [disabled]="signupForm.invalid">Cadastrar</button>
+
+        <mat-spinner *ngIf='isLoading'></mat-spinner>
+    </form>
+</section>

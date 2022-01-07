@@ -1,0 +1,22 @@
+<section>
+    <h1 fxLayoutAlign="center">Nova Equipe</h1>
+
+    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="teamForm" fxLayoutGap="15px"
+        (ngSubmit)="onSubmit()">
+
+        <mat-form-field>
+            <input matInput type="text" placeholder="Nome da Equipe" formControlName="name">
+            <mat-error *ngIf="teamForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Descrição</mat-label>
+            <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+        </mat-form-field>
+        
+        <div fxLayout="row" fxLayoutGap="10px">
+            <button type="submit" mat-raised-button color="primary" [disabled]="teamForm.invalid">Salvar</button>
+            <button type="button" mat-raised-button color="warn" (click)="onCancel()">Cancelar</button>
+        </div>
+    </form>
+</section>

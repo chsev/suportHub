@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Login } from 'src/app/shared/models/login.model';
-import { LoginService } from '../services/login.service';
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { UiService } from 'src/app/shared/services/ui.service';
+import { AuthService } from '../services/auth.service';
+
 
 @Component({
   selector: 'app-login',
@@ -10,38 +11,35 @@ import { LoginService } from '../services/login.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  @ViewChild('formLogin') formLogin!: NgForm;
-  login!: Login;
-  loading: boolean = false;
-  message!: string;
+  loginForm!: FormGroup;
+  isLoading = false;
+  private loadingSubs!: Subscription;
 
 
   constructor(
-    private loginService: LoginService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) { 
-    if (this.loginService.usuarioLogado){
-      this.router.navigate( ["/home"]);
-    }
-  }
+    private authService: AuthService,
+    private uiService: UiService
+    ) { }
 
   ngOnInit(): void {
-    this.route.queryParams
-      .subscribe(params => {this.message = params['error'];
-      })
-    this.login = new Login;
+    this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => this.isLoading = isLoading);
+    this.loginForm = new FormGroup({
+      email: new FormControl('', {validators: [Validators.required, Validators.email]}),
+      password: new FormControl('', {validators: [Validators.required]}),
+    })
   }
 
-  logar(): void {
-    this.loading = true;
-    if (this.formLogin.form.valid) {
-      this.loginService.login(this.login).subscribe((usu) => {
-        this.loginService.usuarioLogado = usu!;
-        this.loading = false;
-        this.router.navigate( ["/home"] );
-      });
-    }
+  onSubmit(){
+    this.authService.login({
+      name: '',
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    })
   }
 
+  ngOnDestroy(): void {
+    this.loadingSubs.unsubscribe();
+  }
 }
+
+

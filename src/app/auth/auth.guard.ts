@@ -1,33 +1,39 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, CanLoad, Route, Router, RouterStateSnapshot, UrlSegment, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { LoginService } from './services/login.service';
+import { AuthService } from './services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate, CanLoad {
+  
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) { }
+  
+  
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    const usuarioLogado = this.loginService.usuarioLogado;
-    let url = state.url;
-    if (usuarioLogado) {
-      if (route.data.role && route.data.role.indexOf(usuarioLogado.perfil) === -1) {
-        this.router.navigate(['/login'],
-          { queryParams: { error: "Proibido o acesso a " + url } });
+      if(this.authService.isAuth()){
+        return true;
+      } else {
+        this.router.navigate(['/login']);
         return false;
       }
-      return true;
-    }
-    this.router.navigate(['/login'],
-      { queryParams: { error: "Deve fazer o login antes de acessar " + url } });
-    return false;
   }
 
-  constructor(
-    private loginService: LoginService,
-    private router: Router
-  ) { }
+  canLoad(route: Route, segments: UrlSegment[]): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
+    if(this.authService.isAuth()){
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
+  }
+
 
 }

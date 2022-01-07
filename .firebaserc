@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "suporthub-5a56c": {
+      "hosting": {
+        "suporteHub": [
+          "suporthub-5a56c"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "suporthub-5a56c"
+  }
+}

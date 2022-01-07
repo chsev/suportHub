@@ -1,7 +1,22 @@
-import { Routes } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 import { AutocadastroComponent } from "./autocadastro/autocadastro.component";
 import { LoginComponent } from "./login/login.component";
-export const LoginRoutes: Routes = [
+import { SignupComponent } from "./signup/signup.component";
+
+const authRoutes: Routes = [
     { path: 'login', component: LoginComponent },
-    { path: 'autocadastro', component: AutocadastroComponent}
+    { path: 'signup', component: SignupComponent}
 ];
+
+@NgModule({
+    declarations: [],
+    imports: [
+      CommonModule, 
+      RouterModule.forChild(authRoutes)
+    ],
+    exports: [RouterModule]
+  })
+  export class AuthRoutingModule { }
+  

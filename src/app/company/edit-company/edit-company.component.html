@@ -1,0 +1,36 @@
+<section>
+    <h1 fxLayoutAlign="center">Editar Empresa</h1>
+
+    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="companyForm" fxLayoutGap="15px"
+        (ngSubmit)="onSubmit()">
+
+        <mat-form-field>
+            <input matInput type="text" placeholder="Nome da Empresa" formControlName="name">
+            <mat-error *ngIf="companyForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput type="text" placeholder="Administrador" formControlName="administrator">
+            <mat-error *ngIf="companyForm.controls['administrator'].hasError('required')">Campo obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput type="text" placeholder="Segmento" formControlName="segment">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Descrição</mat-label>
+            <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+        </mat-form-field>
+
+        <div fxLayout="column">
+            <mat-slide-toggle matInput formControlName="isOpen">Grupo aberto</mat-slide-toggle>
+            <mat-hint>Um grupo aberto pode ser acessado por qualquer pessoa</mat-hint>
+        </div>
+        
+        <div fxLayout="row" fxLayoutGap="10px">
+            <button type="submit" mat-raised-button color="primary" [disabled]="companyForm.invalid">Salvar</button>
+            <button type="button" mat-raised-button color="warn" (click)="onCancelOrExit()">Cancelar</button>
+        </div>
+    </form>
+</section>

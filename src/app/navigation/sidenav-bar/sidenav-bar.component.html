@@ -1,0 +1,45 @@
+<mat-nav-list>
+    <a *ngIf="!isAuth" mat-list-item routerLink="/signup" (click)="onClose()">
+        <mat-icon>person_add</mat-icon>
+        <span class="navigation-caption">Sign Up</span>
+    </a>
+    <a *ngIf="!isAuth" mat-list-item routerLink="/login" (click)="onClose()">
+        <mat-icon>login</mat-icon>
+        <span class="navigation-caption">Login</span>
+    </a>
+
+    <a *ngIf="isAuth" mat-list-item routerLink="/user" (click)="onClose()">
+        <mat-icon>person</mat-icon>
+        <span class="navigation-caption">Usuarios</span>
+    </a>
+
+    <a *ngIf="isAuth" mat-list-item routerLink="/company" (click)="onClose()">
+        <mat-icon>business</mat-icon>
+        <span class="navigation-caption">Empresas</span>
+    </a>
+
+    <a *ngIf="isAuth" mat-list-item routerLink="/team" (click)="onClose()">
+        <mat-icon>group</mat-icon>
+        <span class="navigation-caption">Equipes</span>
+    </a>
+
+    <a *ngIf="isAuth" mat-list-item routerLink="/system" (click)="onClose()">
+        <mat-icon><span class="material-icons">precision_manufacturing</span></mat-icon>
+        <span class="navigation-caption">Sistemas</span>
+    </a>
+    
+    <mat-divider *ngIf="isAuth"></mat-divider>
+    <a *ngIf="isAuth" mat-list-item  (click)="onClose()">
+        <mat-icon>settings</mat-icon>
+        <span class="navigation-caption">Configurações</span>
+    </a>
+
+    <mat-divider ></mat-divider>
+
+    <mat-list-item *ngIf="isAuth">
+        <button mat-icon-button (click)="onLogout()">
+            <mat-icon>logout</mat-icon>
+            <span class="navigation-caption" >Logout</span>
+        </button>
+    </mat-list-item>
+</mat-nav-list>
