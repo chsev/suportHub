@@ -16,7 +16,7 @@ import { DeleteCompanyComponent } from '../delete-company/delete-company.compone
   styleUrls: ['./list-company.component.css']
 })
 export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
-  displayedColumns = ['name', 'segment', 'administrator', 'isOpen', 'button'];
+  displayedColumns = ['name', 'segment', 'nMembers', 'isOpen', 'button'];
   dataSource = new MatTableDataSource<Company>();
   private companyChangedSub!: Subscription;
 
@@ -57,29 +57,29 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  edit(id: string) {
-    this.companyService.editingCompanyId = id;
-    this.router.navigate(['company/edit']);
-  }
+  // edit(id: string) {
+  //   this.companyService.editingCompanyId = id;
+  //   this.router.navigate(['company/edit']);
+  // }
 
 
-  new() {
-    this.router.navigate(["company/new"])
-  }
+  // new() {
+  //   this.router.navigate(["company/new"])
+  // }
 
 
-  delete(passedId: string, passedName: string) {
-    const dialogRef: MatDialogRef<DeleteCompanyComponent> = this.dialog.open(DeleteCompanyComponent, {
-      data: {
-        name: passedName
-      }
-    });
-    dialogRef.afterClosed().subscribe(answer => {
-      if (answer) {
-        this.companyService.remove(passedId);
-      }
-    });
-  }
+  // delete(passedId: string, passedName: string) {
+  //   const dialogRef: MatDialogRef<DeleteCompanyComponent> = this.dialog.open(DeleteCompanyComponent, {
+  //     data: {
+  //       name: passedName
+  //     }
+  //   });
+  //   dialogRef.afterClosed().subscribe(answer => {
+  //     if (answer) {
+  //       this.companyService.remove(passedId);
+  //     }
+  //   });
+  // }
 
 
 

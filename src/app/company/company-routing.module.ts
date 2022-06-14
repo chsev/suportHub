@@ -5,6 +5,7 @@ import { ListCompanyComponent } from './list-company/list-company.component';
 import { CreateCompanyComponent } from './create-company/create-company.component';
 import { EditCompanyComponent } from './edit-company/edit-company.component';
 import { WelcomeCompanyComponent } from './welcome-company/welcome-company.component';
+import { ListallCompanyComponent } from './listall-company/listall-company.component';
 
 
 const routes: Routes = [
@@ -13,6 +14,7 @@ const routes: Routes = [
     { path: 'company/new', component: CreateCompanyComponent},
     { path: 'company/edit', component: EditCompanyComponent},
     { path: 'company/welcome', component: WelcomeCompanyComponent},
+    { path: 'company/listall', component: ListallCompanyComponent},
 ]
 
 

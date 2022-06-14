@@ -5,4 +5,6 @@ export interface Company {
     description?: string,
     administrator?: string, 
     isOpen?: boolean
+    nMembers?: number,
+    members?: string[],
 }
