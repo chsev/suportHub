@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TeamService } from '../services/team.service';
 
@@ -9,7 +9,7 @@ import { TeamService } from '../services/team.service';
   styleUrls: ['./create-team.component.css']
 })
 export class CreateTeamComponent implements OnInit {
-  teamForm!: FormGroup;
+  teamForm!: UntypedFormGroup;
 
   constructor(
     private router: Router,
@@ -17,9 +17,9 @@ export class CreateTeamComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.teamForm = new FormGroup({
-      name: new FormControl('',  {validators: [Validators.required]}),
-      description: new FormControl(''),
+    this.teamForm = new UntypedFormGroup({
+      name: new UntypedFormControl('',  {validators: [Validators.required]}),
+      description: new UntypedFormControl(''),
     })
   }
 

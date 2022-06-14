@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { UntypedFormControl, UntypedFormGroup } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 @Component({
@@ -8,8 +8,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
   })
 export class EditPositionComponent{
 
-    positionForm: FormGroup = new FormGroup({
-        position: new FormControl({value: this.passedData?.position}),
+    positionForm: UntypedFormGroup = new UntypedFormGroup({
+        position: new UntypedFormControl({value: this.passedData?.position}),
       })
 
     constructor(

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { System } from 'src/app/shared/models/system.model';
 import { SystemService } from '../services/system.service';
@@ -12,9 +12,9 @@ import { SystemService } from '../services/system.service';
 export class EditSystemComponent implements OnInit {
   systemId!: string | null;
   system!: any;
-  systemForm: FormGroup = new FormGroup({
-    name: new FormControl('', { validators: [Validators.required] }),
-    description: new FormControl(''),
+  systemForm: UntypedFormGroup = new UntypedFormGroup({
+    name: new UntypedFormControl('', { validators: [Validators.required] }),
+    description: new UntypedFormControl(''),
   })
 
   constructor(

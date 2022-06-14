@@ -13,21 +13,20 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 
 
 @NgModule({
-  declarations: [
-    ListAccountComponent,
-    ConfirmResetComponent,
-    EditPositionComponent
-  ],
-  imports: [
-    CommonModule,
-    RouterModule,
-    MaterialModule,
-    FlexLayoutModule,
-    AngularFirestoreModule,
-    FormsModule,
-    AngularFireAuthModule,
-  ],
-  entryComponents: [ConfirmResetComponent, EditPositionComponent],
-  providers: [AccountService]
+    declarations: [
+        ListAccountComponent,
+        ConfirmResetComponent,
+        EditPositionComponent
+    ],
+    imports: [
+        CommonModule,
+        RouterModule,
+        MaterialModule,
+        FlexLayoutModule,
+        AngularFirestoreModule,
+        FormsModule,
+        AngularFireAuthModule,
+    ],
+    providers: [AccountService]
 })
 export class AccountModule { }

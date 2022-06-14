@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Team } from 'src/app/shared/models/team.model';
 import { TeamService } from '../services/team.service';
@@ -12,9 +12,9 @@ import { TeamService } from '../services/team.service';
 export class EditTeamComponent implements OnInit {
   teamId!: string | null;
   team!: any;
-  teamForm: FormGroup = new FormGroup({
-    name: new FormControl('', { validators: [Validators.required] }),
-    description: new FormControl(''),
+  teamForm: UntypedFormGroup = new UntypedFormGroup({
+    name: new UntypedFormControl('', { validators: [Validators.required] }),
+    description: new UntypedFormControl(''),
   })
 
   constructor(

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { User } from 'src/app/shared/models/user.model';
 import { UserService } from '../services/user.service';
@@ -12,11 +12,11 @@ import { UserService } from '../services/user.service';
 export class EditUserComponent implements OnInit {
   userId!: string | null;
   user!: any;
-  userForm: FormGroup = new FormGroup({
-    email: new FormControl('', {validators: [Validators.required, Validators.email]}),
-    name: new FormControl('', { validators: [Validators.required] }),
-    position: new FormControl(''),
-    uid: new FormControl({value: '', disabled: true})
+  userForm: UntypedFormGroup = new UntypedFormGroup({
+    email: new UntypedFormControl('', {validators: [Validators.required, Validators.email]}),
+    name: new UntypedFormControl('', { validators: [Validators.required] }),
+    position: new UntypedFormControl(''),
+    uid: new UntypedFormControl({value: '', disabled: true})
   })
 
   constructor(

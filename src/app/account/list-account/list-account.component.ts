@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/auth/services/auth.service';
@@ -23,10 +23,10 @@ export class ListAccountComponent implements OnInit {
   private loadingSub!: Subscription;
   isLoading = false;
 
-  accountForm: FormGroup = new FormGroup({
-    email: new FormControl({ value: ''}),
-    position: new FormControl({ value: '' }),
-    company: new FormControl({ value: '' })
+  accountForm: UntypedFormGroup = new UntypedFormGroup({
+    email: new UntypedFormControl({ value: ''}),
+    position: new UntypedFormControl({ value: '' }),
+    company: new UntypedFormControl({ value: '' })
   })
 
   constructor(

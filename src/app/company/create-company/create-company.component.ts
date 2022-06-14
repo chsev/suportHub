@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AccountService } from 'src/app/account/services/account.service';
 import { User } from 'src/app/shared/models/user.model';
@@ -11,7 +11,7 @@ import { CompanyService } from '../services/company.service';
   styleUrls: ['./create-company.component.css']
 })
 export class CreateCompanyComponent implements OnInit {
-  companyForm!: FormGroup;
+  companyForm!: UntypedFormGroup;
   user: User | undefined;
   userID: string | undefined; 
   adminName: string = '';
@@ -23,13 +23,13 @@ export class CreateCompanyComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.companyForm = new FormGroup({
-      name: new FormControl('',  {validators: [Validators.required]}),
-      adminID: new FormControl('', {validators: [Validators.required]} ),
-      segment: new FormControl(''),
-      description: new FormControl('', {validators: [Validators.required]}),
-      isOpen: new FormControl(false),
-      isPublic: new FormControl(false)
+    this.companyForm = new UntypedFormGroup({
+      name: new UntypedFormControl('',  {validators: [Validators.required]}),
+      adminID: new UntypedFormControl('', {validators: [Validators.required]} ),
+      segment: new UntypedFormControl(''),
+      description: new UntypedFormControl('', {validators: [Validators.required]}),
+      isOpen: new UntypedFormControl(false),
+      isPublic: new UntypedFormControl(false)
     })
     
     this.userID = this.accountService.getUserID();

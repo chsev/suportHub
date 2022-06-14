@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SystemService } from '../services/system.service';
 
@@ -9,7 +9,7 @@ import { SystemService } from '../services/system.service';
   styleUrls: ['./create-system.component.css']
 })
 export class CreateSystemComponent implements OnInit {
-  systemForm!: FormGroup;
+  systemForm!: UntypedFormGroup;
 
   constructor(
     private router: Router,
@@ -17,9 +17,9 @@ export class CreateSystemComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.systemForm = new FormGroup({
-      name: new FormControl('',  {validators: [Validators.required]}),
-      description: new FormControl(''),
+    this.systemForm = new UntypedFormGroup({
+      name: new UntypedFormControl('',  {validators: [Validators.required]}),
+      description: new UntypedFormControl(''),
     })
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Company } from 'src/app/shared/models/company.model';
 import { CompanyService } from '../services/company.service';
@@ -12,12 +12,12 @@ import { CompanyService } from '../services/company.service';
 export class EditCompanyComponent implements OnInit {
   companyId!: string | null;
   company!: any;
-  companyForm: FormGroup = new FormGroup({
-    name: new FormControl('', { validators: [Validators.required] }),
-    administrator: new FormControl('', { validators: [Validators.required] }),
-    segment: new FormControl(''),
-    description: new FormControl(''),
-    isOpen: new FormControl(false)
+  companyForm: UntypedFormGroup = new UntypedFormGroup({
+    name: new UntypedFormControl('', { validators: [Validators.required] }),
+    administrator: new UntypedFormControl('', { validators: [Validators.required] }),
+    segment: new UntypedFormControl(''),
+    description: new UntypedFormControl(''),
+    isOpen: new UntypedFormControl(false)
   })
 
   constructor(
