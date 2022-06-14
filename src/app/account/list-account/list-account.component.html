@@ -1,0 +1,55 @@
+<div fxFlex fxLayout="column" fxLayoutAlign="center center">
+    <h1>Minha Conta</h1>
+
+    <mat-card *ngIf="currentUser" class="account-card">
+        <mat-card-header>
+            <img mat-card-avatar class="example-header-image" [src]="avatarSrc">
+            <mat-card-title>{{currentUser.name}}</mat-card-title>
+            <mat-card-subtitle *ngIf="currentUser.position">{{currentUser.position}}</mat-card-subtitle>
+        </mat-card-header>
+
+        <p></p>
+        <mat-divider inset></mat-divider>
+        <p></p>
+
+        <mat-card-content>
+            <form fxLayout="column" fxLayoutAlign="center start" [formGroup]="accountForm" fxLayoutGap="15px">
+
+                <mat-form-field>
+                    <input matInput readonly type="text" placeholder="e-mail" formControlName="email">
+                </mat-form-field>
+
+                <div fxLayoutAlign="start center">
+                    <mat-form-field>
+                        <input matInput readonly type="text" placeholder="cargo" formControlName="position">
+                    </mat-form-field>
+                    <button mat-icon-button (click)="openEditPositionDialog()">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </div>
+
+                <mat-form-field class="example-full-width">
+                    <input matInput readonly type="text" placeholder="empresa" formControlName="company">
+                </mat-form-field>
+
+            </form>
+
+        </mat-card-content>
+
+        <mat-divider inset></mat-divider>
+
+        <!-- <mat-card-content fxLayoutAlign="end center"> 
+
+        </mat-card-content> -->
+
+        <mat-card-actions align="end">
+            <button mat-button (click)="openResetPasswordDialog()">Redefinir senha</button>
+            <button mat-button (click)="onLogout()">Logout</button>
+        </mat-card-actions>
+    </mat-card>
+
+    <div fxLayoutAlign="center center">
+        <mat-spinner *ngIf='isLoading'></mat-spinner>
+    </div>
+
+</div>

@@ -54,7 +54,7 @@ export class UserService {
   }
 
   update(user: User){
-    this.db.collection('users').doc(user.id).update(user);
+    // this.db.collection('users').doc(user.id).update(user);
   }
 
   remove(id: string){
@@ -63,7 +63,7 @@ export class UserService {
 
   searchById(id: string) {
     this.editingUserChanged.next({
-      ...this.availableUsers.find(user => user.id === id)
+      // ...this.availableUsers.find(user => user.id === id)
     })
   }
 

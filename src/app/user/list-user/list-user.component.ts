@@ -37,8 +37,10 @@ export class ListUserComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.userChangedSub = this.userService.userArrayChanged
       .subscribe((users: User[]) => this.dataSource.data = users);
+
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
+      
     this.userService.fetchUsers();
   }
 

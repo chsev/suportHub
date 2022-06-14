@@ -18,12 +18,15 @@ import { UserModule } from './user/user.module';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { environment } from '../environments/environment';
+import { AccountModule } from './account/account.module';
+import { ListallCompanyComponent } from './comapny/listall-company/listall-company.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
+    ListallCompanyComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +42,7 @@ import { environment } from '../environments/environment';
     WelcomeModule,
     AuthModule,
     NavigationModule,
+    AccountModule,
     AngularFireModule.initializeApp(environment.firebase),
   ],
   providers: [],

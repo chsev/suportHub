@@ -12,10 +12,11 @@ import { AuthService } from '../services/auth.service';
 export class SignupComponent implements OnInit, OnDestroy {
   signupForm!: FormGroup;
   isLoading = false;
-  private loadingSubscription!: Subscription; 
+  private loadingSubscription!: Subscription;
+  hide = true;
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private uiService: UiService
   ) { }
 
@@ -24,28 +25,32 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.loadingSubscription = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
 
-      this.signupForm = new FormGroup({
-        name: new FormControl('', {validators: [Validators.required]}),
-        email: new FormControl('', {validators: [Validators.required, Validators.email]}),
-        password: new FormControl('', { validators: [Validators.required, Validators.minLength(8)]}),
-        position: new FormControl(''),
-        terms: new FormControl(false, {validators: [Validators.required]})
+    this.signupForm = new FormGroup({
+      name: new FormControl('', { validators: [Validators.required] }),
+      email: new FormControl('', { validators: [Validators.required, Validators.email] }),
+      password: new FormControl('', { validators: [Validators.required, Validators.minLength(8)] }),
+      position: new FormControl(''),
+      terms: new FormControl(false, { validators: [Validators.required] })
+    })
+  }
+
+
+  onSubmit(): void {
+    this.authService.registerUser(
+      {
+        email: this.signupForm.value.email,
+        password: this.signupForm.value.password
+      },
+      {
+        name: this.signupForm.value.name,
+        email: this.signupForm.value.email,
+        position: this.signupForm.value.position
       })
   }
 
 
-  onSubmit( ): void {
-    this.authService.registerUser({
-      name: this.signupForm.value.name,
-      email: this.signupForm.value.email,
-      password: this.signupForm.value.password,
-      position: this.signupForm.value.position
-    })
-  }
-
-  
   ngOnDestroy(): void {
-      this.loadingSubscription.unsubscribe();
+    this.loadingSubscription.unsubscribe();
   }
 
 }

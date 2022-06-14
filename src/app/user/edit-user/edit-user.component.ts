@@ -37,7 +37,7 @@ export class EditUserComponent implements OnInit {
             email: payload.email,
             name: payload.name,
             position: payload.position,
-            uid: payload.uid
+            // uid: payload.uid
           })
         }
         );

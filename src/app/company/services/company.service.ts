@@ -11,19 +11,14 @@ import { Subject, Subscription } from 'rxjs';
 export class CompanyService {
   companyArrayChanged = new Subject<Company[]>();
   availableCompanies: Company[] = [];
-
   editingCompanyId: string | null = null;
   editingCompanyChanged = new Subject<Company>();
-
-
   private firebaseSubs: Subscription[] = [];
-
 
   constructor(
     private db: AngularFirestore,
     private uiService: UiService
   ) { }
-
 
   fetchCompanies() {
     this.uiService.loadingStateChanged.next(true);

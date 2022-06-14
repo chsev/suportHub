@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   private loadingSubs!: Subscription;
+  hide = true;
 
 
   constructor(
@@ -31,7 +32,6 @@ export class LoginComponent implements OnInit {
 
   onSubmit(){
     this.authService.login({
-      name: '',
       email: this.loginForm.value.email,
       password: this.loginForm.value.password
     })

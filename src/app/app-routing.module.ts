@@ -8,6 +8,7 @@ import { CompanyRoutingModule } from './company/company-routing.module';
 import { TeamRoutingModule } from './team/team-routing.module';
 import { SystemRoutingModule } from './system/system-routing.module';
 import { UserRoutingModule } from './user/user-routing.module';
+import { AccountRoutingModule } from './account/account-routing.module';
 
 const routes: Routes = [
   { path: '', redirectTo: 'welcome', pathMatch: 'full' },
@@ -22,7 +23,8 @@ const routes: Routes = [
     CompanyRoutingModule,
     TeamRoutingModule,
     SystemRoutingModule,
-    UserRoutingModule
+    UserRoutingModule,
+    AccountRoutingModule
   ],
   exports: [RouterModule],
   providers: [AuthGuard]

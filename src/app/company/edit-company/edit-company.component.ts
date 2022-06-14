@@ -50,12 +50,12 @@ export class EditCompanyComponent implements OnInit {
 
   onSubmit() {
     this.companyService.update({ id: this.companyId, ...this.companyForm.value });
-    this.router.navigate(["company/list"]);
+    this.router.navigate(["company/welcome"]);
   }
 
 
   onCancelOrExit() {
-    this.router.navigate(["company/list"]);
+    this.router.navigate(["company/welcome"]);
   }
 
 

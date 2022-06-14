@@ -4,22 +4,35 @@
         fxLayout="column" 
         fxLayoutAlign="center center"
         [formGroup] = "loginForm"
-        fxLayoutGap="15px"
+        fxLayoutGap="0px"
         (ngSubmit)="onSubmit()"
         >
 
-        <mat-form-field>
-            <input type='email' matInput placeholder="Email" 
+        <div class="dual-container" >
+            <mat-icon matSuffix>mail</mat-icon>
+            <mat-form-field appearance="outline" >
+                <mat-label>Email</mat-label>
+                <input matInput type='email' [width]="600"  placeholder="Email" 
                 formControlName = "email">
-            <mat-error *ngIf="loginForm.controls['email'].hasError('required')">Campo obrigatório</mat-error>
-            <mat-error *ngIf="!loginForm.controls['email'].hasError('required')">E-mail é inválido</mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="loginForm.controls['email'].hasError('required')">Campo obrigatório</mat-error>
+                <mat-error *ngIf="!loginForm.controls['email'].hasError('required')">E-mail é inválido</mat-error>
+            </mat-form-field>
+        </div>
 
-        <mat-form-field>
-            <input type='password' matInput placeholder="Senha"
+        <div class="dual-container" >
+            <mat-icon matSuffix>password</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Senha</mat-label>
+                <input [type]="hide ? 'password' : 'text'" matInput placeholder="Senha"
                 formControlName = "password">
-            <mat-error>Campo obrigatório</mat-error>
-        </mat-form-field>
+                <mat-icon-button matSuffix (click)= "hide = !hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </mat-icon-button>
+                <mat-error>Campo obrigatório</mat-error>
+            </mat-form-field>
+        </div>
+
+        <br>
 
         <button *ngIf='!isLoading' type="submit" mat-raised-button color="primary" [disabled]="loginForm.invalid">Login</button>
         <mat-spinner *ngIf='isLoading'></mat-spinner>

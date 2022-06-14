@@ -11,11 +11,11 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DeleteCompanyComponent } from '../delete-company/delete-company.component';
 
 @Component({
-  selector: 'app-list-company',
-  templateUrl: './list-company.component.html',
-  styleUrls: ['./list-company.component.css']
+  selector: 'app-listall-company',
+  templateUrl: './listall-company.component.html',
+  styleUrls: ['./listall-company.component.css']
 })
-export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ListallCompanyComponent implements OnInit {
   displayedColumns = ['name', 'segment', 'administrator', 'isOpen', 'button'];
   dataSource = new MatTableDataSource<Company>();
   private companyChangedSub!: Subscription;
@@ -37,10 +37,8 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.companyChangedSub = this.companyService.companyArrayChanged
       .subscribe((companies: Company[]) => this.dataSource.data = companies);
-
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
-      
     this.companyService.fetchCompanies();
   }
 
@@ -80,8 +78,4 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
-
-
-
-
 }

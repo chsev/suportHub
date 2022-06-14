@@ -10,15 +10,18 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { CompanyService } from './services/company.service';
 import { RouterModule } from '@angular/router';
+import { WelcomeCompanyComponent } from './welcome-company/welcome-company.component';
 
 import { FormsModule } from '@angular/forms';
+import { ListallCompanyComponent } from './listall-company/listall-company.component';
 
 @NgModule({
   declarations: [
     CreateCompanyComponent,
     EditCompanyComponent,
     ListCompanyComponent, 
-    DeleteCompanyComponent
+    DeleteCompanyComponent, 
+    WelcomeCompanyComponent, ListallCompanyComponent
   ],
   imports: [
     CommonModule,

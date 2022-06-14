@@ -1,0 +1,33 @@
+<div fxFlex fxLayout="column" fxLayoutAlign="center center">
+
+
+    <mat-card fxFlex fxLayoutGap="8px" fxLayout="row" fxLayoutAlign="center center">
+        <mat-icon>info</mat-icon>
+        <div>Parece que você não se juntou à nenhuma empresa ainda</div>
+    </mat-card>
+
+    <br><br>
+
+    <section >
+        <button  mat-raised-button color="primary" class="example-label" (click)="onCreateCompany()">
+            <button mat-fab color="black">
+                <mat-icon>domain_add</mat-icon>
+            </button>
+            Criar seu próprio Grupo de Empresa
+        </button>
+    </section>
+
+    <br>
+    <div>ou...</div>
+    <br>
+
+    <section>
+        <button mat-raised-button class="example-label" color="primary" (click)="onSearchCompany()">
+            <button class="aaa" mat-fab color="black">
+                <mat-icon>travel_explore</mat-icon>
+            </button>
+            Pesquisar um Grupo para se juntar
+        </button>
+    </section>
+
+</div>

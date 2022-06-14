@@ -1,0 +1,14 @@
+.account-card {
+    max-width: 350px;
+    width: 80%;
+  }
+
+.example-header-image {
+    background-size: cover;
+    /* width: 10%;
+    height: 10%; */
+  }
+
+.example-full-width {
+    width: 100%;
+  }
