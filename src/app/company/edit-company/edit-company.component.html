@@ -1,36 +1,57 @@
-<section>
+<section *ngIf='!isLoading'>
     <h1 fxLayoutAlign="center">Editar Empresa</h1>
 
     <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="companyForm" fxLayoutGap="15px"
         (ngSubmit)="onSubmit()">
 
-        <mat-form-field>
-            <input matInput type="text" placeholder="Nome da Empresa" formControlName="name">
-            <mat-error *ngIf="companyForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
-        </mat-form-field>
+        <div class="dual-container">
+            <mat-icon>domain</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Nome da Empresa</mat-label>
+                <input matInput type="text" placeholder="Nome da Empresa" formControlName="name">
+                <mat-error *ngIf="companyForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+            </mat-form-field>
+        </div>
 
-        <mat-form-field>
-            <input matInput type="text" placeholder="Administrador" formControlName="administrator">
-            <mat-error *ngIf="companyForm.controls['administrator'].hasError('required')">Campo obrigatório</mat-error>
-        </mat-form-field>
-
-        <mat-form-field>
-            <input matInput type="text" placeholder="Segmento" formControlName="segment">
-        </mat-form-field>
+        <div class="dual-container">
+            <mat-icon>assignment_ind</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Administrador</mat-label>
+                <input matInput readonly placeholder="Administrador" type="text" [formControl]="administrator">
+            </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline">
-            <mat-label>Descrição</mat-label>
-            <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+            <mat-label>Segmento</mat-label>
+            <input class="biru" matInput type="text" placeholder="Segmento" formControlName="segment">
         </mat-form-field>
 
-        <div fxLayout="column">
-            <mat-slide-toggle matInput formControlName="isOpen">Grupo aberto</mat-slide-toggle>
-            <mat-hint>Um grupo aberto pode ser acessado por qualquer pessoa</mat-hint>
+        <div fxLayoutAlign="center center" class="dual-container">
+            <mat-icon>description</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Descrição</mat-label>
+                <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+                <mat-error *ngIf="companyForm.controls['description'].hasError('required')">Forneça alguma descrição para o grupo</mat-error>
+            </mat-form-field>
         </div>
-        
+
+        <div fxLayout="column">
+            <mat-checkbox matInput formControlName="isOpen">Grupo aberto</mat-checkbox>
+            <mat-hint>um grupo aberto não requer aprovação de novos membros</mat-hint>
+
+            <br>
+
+            <mat-checkbox matInput formControlName="isPublic">Grupo público</mat-checkbox>
+            <mat-hint>grupos públicos aparecem nos resultados de pesquisa</mat-hint>
+        </div>
+
         <div fxLayout="row" fxLayoutGap="10px">
             <button type="submit" mat-raised-button color="primary" [disabled]="companyForm.invalid">Salvar</button>
             <button type="button" mat-raised-button color="warn" (click)="onCancelOrExit()">Cancelar</button>
         </div>
     </form>
 </section>
+
+<div fxLayout="column" fxLayoutAlign="center center" *ngIf='isLoading'>
+    <mat-spinner ></mat-spinner>
+</div>

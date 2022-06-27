@@ -50,7 +50,9 @@ export class UserService {
 
 
   insert(user: User) {
-    this.db.collection('users').add(user);
+    const id = this.db.createId();
+    this.db.collection('users').doc(id).set(user);
+    // this.db.collection('users').add(user);
   }
 
   update(user: User){

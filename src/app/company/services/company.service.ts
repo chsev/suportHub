@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFirestore, FieldPath } from '@angular/fire/compat/firestore';
 import { UiService } from 'src/app/shared/services/ui.service';
 import { map } from 'rxjs/Operators';
 import { Company } from 'src/app/shared/models/company.model';
-import { Subject, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { increment, arrayUnion } from '@angular/fire/firestore';
+
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,7 @@ export class CompanyService {
   editingCompanyId: string | null = null;
   editingCompanyChanged = new Subject<Company>();
   private firebaseSubs: Subscription[] = [];
+
 
   constructor(
     private db: AngularFirestore,
@@ -49,15 +52,46 @@ export class CompanyService {
   }
 
 
-  insert(company: Company) {
-    this.db.collection('companies').add(company);
+  fetchCompanyDoc(companyId: string): Observable<Company> {
+    this.uiService.loadingStateChanged.next(true);
+
+    return new Observable((observer) => {
+      this.db.collection('companies').doc<Company>(companyId).get() //id?
+        .subscribe(
+          (doc) => {
+            // let companyData = doc.data();
+            // console.log(companyData);
+            observer.next({...doc.data(), id:companyId});
+            this.uiService.loadingStateChanged.next(false);
+          }
+          , (error) => {
+            observer.error(error);
+            this.uiService.loadingStateChanged.next(false);
+          }
+        )
+    })
   }
 
-  update(company: Company){
-    this.db.collection('companies').doc(company.id).update(company);
+
+  async insert(company: Company) {
+    return this.db.collection('companies').add(company)
+      .then(
+        (docRef) => {
+          console.log("newDoc:" + docRef.id)
+          return docRef.id;
+        }
+      ).catch(
+        (err) => {
+          console.log(err);
+          return undefined;
+        })
   }
 
-  remove(id: string){
+  update(companyId: string, company: Company) {
+    this.db.collection('companies').doc(companyId).update(company);
+  }
+
+  remove(id: string) {
     this.db.collection('companies').doc(id).delete();
   }
 
@@ -67,10 +101,14 @@ export class CompanyService {
     })
   }
 
+  addMember(companyId:string, userId: string){
+    this.db.collection('companies').doc(companyId).update({
+      nMembers: increment(1), 
+      members: arrayUnion(userId)
+    })
+  }
+
   cancelSubscriptions() {
     this.firebaseSubs.forEach(sub => sub.unsubscribe());
   }
-
-
-
 }

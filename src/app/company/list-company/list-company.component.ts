@@ -9,6 +9,9 @@ import { UiService } from 'src/app/shared/services/ui.service';
 import { CompanyService } from '../services/company.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DeleteCompanyComponent } from '../delete-company/delete-company.component';
+import { JoinOpenCompanyComponent } from './joinOpen-company/joinOpen-company.component';
+import { JoinClosedCompanyComponent } from './joinClosed-company/joinClosed-company.component';
+import { AccountService } from 'src/app/account/services/account.service';
 
 @Component({
   selector: 'app-list-company',
@@ -30,7 +33,7 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private companyService: CompanyService,
     private uiService: UiService,
-    private router: Router,
+    private accountService: AccountService,
     private dialog: MatDialog
   ) { }
 
@@ -54,6 +57,55 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.companyChangedSub.unsubscribe();
     this.loadingSub.unsubscribe();
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  join(id: string){
+    let company = this.dataSource.data.find(c => c.id == id);
+    if(company){
+      if(company.isOpen){
+        this.joinOpen(company);
+      }
+      else{
+        this.joinClosed(company);
+      }
+    }
+  }
+
+  joinOpen(company: Company){
+    const dialogRef: MatDialogRef<JoinOpenCompanyComponent> = this.dialog.open(JoinOpenCompanyComponent, {
+      data: { name: company.name }
+    });
+
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer) {
+        console.log("Aceitou Open");
+        this.accountService.updateCompany(company.id!);
+        this.companyService.addMember(company.id!, this.accountService.getUserID()!)
+      }
+    });
+  }
+
+  joinClosed(company: Company){
+    const dialogRef: MatDialogRef<JoinClosedCompanyComponent> = this.dialog.open(JoinClosedCompanyComponent, {
+      data: { name: company.name }
+    });
+
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer) {
+        console.log("Aceitou Closed");
+        this.accountService.updateCompany(company.id!);
+        this.companyService.addMember(company.id!, this.accountService.getUserID()!)
+      }
+    });
   }
 
 

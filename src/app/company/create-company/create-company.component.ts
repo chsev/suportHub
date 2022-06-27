@@ -15,6 +15,7 @@ export class CreateCompanyComponent implements OnInit {
   user: User | undefined;
   userID: string | undefined; 
   adminName: string = '';
+  administrator = new UntypedFormControl('');
 
   constructor(
     private router: Router,
@@ -25,7 +26,6 @@ export class CreateCompanyComponent implements OnInit {
   ngOnInit(): void {
     this.companyForm = new UntypedFormGroup({
       name: new UntypedFormControl('',  {validators: [Validators.required]}),
-      adminID: new UntypedFormControl('', {validators: [Validators.required]} ),
       segment: new UntypedFormControl(''),
       description: new UntypedFormControl('', {validators: [Validators.required]}),
       isOpen: new UntypedFormControl(false),
@@ -36,18 +36,23 @@ export class CreateCompanyComponent implements OnInit {
     this.user = this.accountService.getUser();
 
     if(this.user && this.userID){
-      this.adminName = this.user.name!;
-      this.companyForm.controls['adminID'].setValue(this.userID);
+      this.administrator.setValue(`${this.user.name} (${this.user.email})`)
     }
   }
 
-  onSubmit(){
-    this.companyService.insert(this.companyForm.value);
-    this.router.navigate(["company/list"]);
+  async onSubmit(){
+    let newCompanyid = await this.companyService.insert({...this.companyForm.value, administrator: this.userID});
+    if(newCompanyid){
+      console.log("cmpy id:" + newCompanyid);
+      this.accountService.updateCompany(newCompanyid);
+    } 
+    this.router.navigate(["company/welcome"]);
   }
 
   onCancel(){
-    this.router.navigate(["company/list"]);
+    this.router.navigate(["company/welcome"]);
   }
+
+
 
 }

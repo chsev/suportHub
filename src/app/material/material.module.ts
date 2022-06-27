@@ -23,6 +23,9 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 
 
@@ -53,6 +56,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatSnackBarModule,
     MatDividerModule,
     MatSlideToggleModule,
+    MatExpansionModule,
+    MatTooltipModule,
+    MatBottomSheetModule
   ],
   exports: [
     MatSliderModule,
@@ -77,7 +83,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatPaginatorModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatExpansionModule,
+    MatTooltipModule,
+    MatBottomSheetModule
   ]
 })
 export class MaterialModule { }

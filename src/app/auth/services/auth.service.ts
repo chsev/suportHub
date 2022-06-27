@@ -11,7 +11,6 @@ import { SystemService } from 'src/app/system/services/system.service';
 import { UserService } from 'src/app/user/services/user.service';
 import { AccountService } from 'src/app/account/services/account.service';
 import { Login } from 'src/app/shared/models/login.model';
-import { FirebaseApp } from '@angular/fire/app'
 
 
 @Injectable({
@@ -20,7 +19,6 @@ import { FirebaseApp } from '@angular/fire/app'
 export class AuthService {
   authChange = new Subject<boolean>();
   uidChanged = new Subject<string | undefined>();
-  private uid: string | undefined;
   private isAuthenticated = false;
 
 
@@ -29,7 +27,6 @@ export class AuthService {
     private db: AngularFirestore,
     private router: Router,
     private uiService: UiService,
-
     private companyService: CompanyService,
     private teamService: TeamService,
     private systemService: SystemService,
@@ -55,30 +52,16 @@ export class AuthService {
     })
   }
 
-  // initUserListener() {
-  //   this.fireauth.user.subscribe(user => {
-  //     if (user) {
-  //       this.uid = user.uid;
-  //       this.uidChanged.next(this.uid);
-  //     } else {
-  //       this.uid = undefined;
-  //       this.uidChanged.next(undefined);
-  //     }
-  //   });
-  // }
 
   isAuth() {
     return this.isAuthenticated;
   }
 
-
-
   registerUser(login: Login, user: User) {
     this.uiService.loadingStateChanged.next(true);
     this.fireauth.createUserWithEmailAndPassword(login.email!, login.password!)
       .then(userCredencials => {
-        this.db.collection('users')
-          .doc(userCredencials.user?.uid)
+        this.db.collection('users').doc(userCredencials.user?.uid)
           .set(user);
       })
       .catch(error => {
@@ -88,20 +71,18 @@ export class AuthService {
       .finally(() => {
         this.uiService.loadingStateChanged.next(false);
       })
-
   }
+
 
   login(login: Login) {
     this.uiService.loadingStateChanged.next(true);
     this.fireauth.signInWithEmailAndPassword(login.email!, login.password!)
       .then(userCredentials => {
-        console.log(userCredentials); //test
-        console.log(userCredentials.user?.uid); // test
-        console.log("---");
-
+        // console.log(userCredentials); //test
+        // console.log(userCredentials.user?.uid); // test
+        // console.log("---");
         this.accountService.currentUID = userCredentials.user?.uid;
         this.accountService.fetchUserData();
-        // this.accountService.fetchUserData(userCredentials.user?.uid!);
       })
       .catch(error => {
         this.uiService.showSnackbar(error.message, undefined, 10000);
@@ -116,9 +97,11 @@ export class AuthService {
     this.fireauth.sendPasswordResetEmail(email);
   }
 
+
   logout() {
     this.fireauth.signOut();
   }
+  
 
   cancelSubscriptions() {
     this.companyService.cancelSubscriptions();

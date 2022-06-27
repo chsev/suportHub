@@ -4,7 +4,8 @@ export interface Company {
     segment?: string,
     description?: string,
     administrator?: string, 
-    isOpen?: boolean
+    isOpen?: boolean,
+    isPublic?: boolean,
     nMembers?: number,
     members?: string[],
 }

@@ -17,10 +17,7 @@
             <mat-icon>assignment_ind</mat-icon>
             <mat-form-field appearance="outline">
                 <mat-label>Administrador</mat-label>
-                <input matInput readonly type="text" placeholder="Administrador">{{adminName}} ({{user?.email}})
-                <!-- <mat-hint>Um grupo aberto pode ser acessado por qualquer pessoa</mat-hint> -->
-                <!-- <mat-error *ngIf="companyForm.controls['administrator'].hasError('required')">Campo obrigatório -->
-                <!-- </mat-error> -->
+                <input matInput readonly placeholder="Administrador" type="text" [formControl]="administrator">
             </mat-form-field>
         </div>
 

@@ -1,58 +1,60 @@
-<section class="list-companies">
+<section class="list-companies" >
 
     <h1>Empresas </h1>
+
+    <mat-form-field appearance="outline" >
+        <mat-label>Filtrar</mat-label>
+        <input matInput (keyup)="applyFilter($event)" #input>
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
     <mat-table [dataSource]="dataSource" matSort>
-        
         <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Empresa</mat-header-cell>
-        <mat-cell *matCellDef="let element">{{ element.name }}</mat-cell>
-    </ng-container>
-    
-    
-    <ng-container matColumnDef="segment">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Segmento</mat-header-cell>
-        <mat-cell *matCellDef="let element">{{ element.segment }}</mat-cell>
-    </ng-container>
-    
-    
-    <ng-container matColumnDef="nMembers">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Num. membros</mat-header-cell>
-        <!-- <mat-cell *matCellDef="let element">{{ element.nMembers }}</mat-cell> -->
-        <mat-cell *matCellDef="let element">0</mat-cell>
-    </ng-container>
-    
-    
-    <ng-container matColumnDef="isOpen">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Aberto</mat-header-cell>
-        <mat-cell *matCellDef="let element">
-            <div fxLayoutAlign="center center">
-                <mat-icon *ngIf="element.isOpen">lock_open</mat-icon>
-                <mat-icon *ngIf="!element.isOpen">lock</mat-icon>
-            </div>
-        </mat-cell>
-    </ng-container>
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Empresa</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{ element.name }}</mat-cell>
+        </ng-container>
 
-    <ng-container matColumnDef="button">
-        <mat-header-cell *matHeaderCellDef>
-        </mat-header-cell>
-        <mat-cell *matCellDef="let element">
-            <button mat-raised-button color="primary">Juntar-se
-                <mat-icon>edit</mat-icon>
-            </button>
-        </mat-cell>
-    </ng-container>
-    
-    
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
 
-<div fxLayoutAlign="center center">
-    <mat-spinner *ngIf='isLoading' ></mat-spinner>
-</div>
+        <ng-container matColumnDef="segment">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Segmento</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{ element.segment }}</mat-cell>
+        </ng-container>
 
-<mat-paginator [pageSizeOptions]="[10, 15, 20]"
-showFirstLastButtons 
-aria-label="Select page of periodic elements">
-</mat-paginator>
+
+        <ng-container matColumnDef="nMembers">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Num. membros</mat-header-cell>
+            <!-- <mat-cell *matCellDef="let element">{{ element.nMembers }}</mat-cell> -->
+            <mat-cell *matCellDef="let element">0</mat-cell>
+        </ng-container>
+
+
+        <ng-container matColumnDef="isOpen">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Aberto</mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <div fxLayoutAlign="center center">
+                    <mat-icon *ngIf="element.isOpen">lock_open</mat-icon>
+                    <mat-icon *ngIf="!element.isOpen">lock</mat-icon>
+                </div>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="button">
+            <mat-header-cell *matHeaderCellDef>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <button mat-raised-button color="primary" (click)="join(element.id)">Juntar-se</button>
+            </mat-cell>
+        </ng-container>
+
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <div fxLayoutAlign="center center">
+        <mat-spinner *ngIf='isLoading'></mat-spinner>
+    </div>
+
+    <mat-paginator [pageSizeOptions]="[10, 15, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+    </mat-paginator>
 </section>

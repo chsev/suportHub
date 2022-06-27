@@ -14,6 +14,9 @@ import { WelcomeCompanyComponent } from './welcome-company/welcome-company.compo
 
 import { FormsModule } from '@angular/forms';
 import { ListallCompanyComponent } from './listall-company/listall-company.component';
+import { JoinOpenCompanyComponent } from './list-company/joinOpen-company/joinOpen-company.component';
+import { JoinClosedCompanyComponent } from './list-company/joinClosed-company/joinClosed-company.component';
+import { BottomSheetOverviewMembersOptions, ViewCompanyComponent } from './view-company/view-company.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +24,12 @@ import { ListallCompanyComponent } from './listall-company/listall-company.compo
     EditCompanyComponent,
     ListCompanyComponent, 
     DeleteCompanyComponent, 
-    WelcomeCompanyComponent, ListallCompanyComponent
+    WelcomeCompanyComponent, 
+    ListallCompanyComponent,
+    JoinOpenCompanyComponent,
+    JoinClosedCompanyComponent,
+    ViewCompanyComponent,
+    BottomSheetOverviewMembersOptions
   ],
   imports: [
     CommonModule,

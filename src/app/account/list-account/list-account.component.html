@@ -1,11 +1,11 @@
 <div fxFlex fxLayout="column" fxLayoutAlign="center center">
     <h1>Minha Conta</h1>
 
-    <mat-card *ngIf="currentUser" class="account-card">
+    <mat-card *ngIf="user" class="account-card">
         <mat-card-header>
             <img mat-card-avatar class="example-header-image" [src]="avatarSrc">
-            <mat-card-title>{{currentUser.name}}</mat-card-title>
-            <mat-card-subtitle *ngIf="currentUser.position">{{currentUser.position}}</mat-card-subtitle>
+            <mat-card-title>{{user.name}}</mat-card-title>
+            <mat-card-subtitle *ngIf="user.position">{{user.position}}</mat-card-subtitle>
         </mat-card-header>
 
         <p></p>

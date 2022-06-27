@@ -4,15 +4,17 @@
             <mat-icon>menu</mat-icon>
         </button>
     </div>
-    <div fxFlex fxLayoutAlign="center center" fxLayoutGap="3px">
+
+    
+    <a href="#" routerLink="/" fxFlex fxLayoutAlign.gt-xs="start center" fxLayoutAlign.xs="center center" fxLayoutGap="3px">
         <mat-icon>hub</mat-icon>
-        <a href="#" routerLink="/">suportHub</a>
-    </div>
+        <span>suporteHub</span>
+    </a>
 
     <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxHide.xs>
         <ul *ngIf="isAuth" fxLayout fxLayoutGap="15px" class="navigation-items">
             <!-- <li> <a routerLink="/user">Usuários</a></li> -->
-            <li> <a routerLink="/company">Empresas</a></li>
+            <li> <a routerLink="/company">Empresa</a></li>
             <li> <a routerLink="/team">Equipes</a></li>
             <li> <a routerLink="/system">Sistemas</a></li>
             <li> <a routerLink="/account">Minha Conta</a></li>
@@ -21,9 +23,15 @@
 
     <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
         <ul fxLayout fxLayoutGap="15px" class="navigation-items">
-            <li *ngIf="!isAuth"><a routerLink="/signup">Sign Up</a></li>
-            <li *ngIf="!isAuth"><a routerLink="/login">Login</a></li>
-            <li *ngIf="isAuth"> <a style="cursor: pointer" (click)="onLogout()">Logout</a></li>
+            <li *ngIf="!isAuth">
+                <a routerLink="/signup">Cadastrar</a>
+            </li>
+            <li *ngIf="!isAuth">
+                <a routerLink="/login">Login</a>
+            </li>
+            <li *ngIf="isAuth">
+                <a style="cursor: pointer" (click)="onLogout()">Logout</a>
+            </li>
         </ul>
     </div>
 </mat-toolbar>
