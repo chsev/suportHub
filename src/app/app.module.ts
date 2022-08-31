@@ -20,6 +20,7 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { environment } from '../environments/environment';
 import { AccountModule } from './account/account.module';
 import { PostModule } from './post/post.module';
+import { QuillModule } from 'ngx-quill';
 
 
 @NgModule({
@@ -44,6 +45,7 @@ import { PostModule } from './post/post.module';
     AccountModule,
     PostModule,
     AngularFireModule.initializeApp(environment.firebase),
+    QuillModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

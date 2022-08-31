@@ -6,20 +6,19 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { PostService} from './services/post.service';
 import { CreatePostComponent } from './create-post/create-post.component';
 import { QuillModule } from 'ngx-quill';
-import { ListPostComponent } from './list-post/list-post.component';
+
 
 
 @NgModule({
   declarations: [
     ViewPostComponent,
-    CreatePostComponent,
-    ListPostComponent,
+    CreatePostComponent
   ],
   imports: [
     CommonModule,
     MaterialModule,
     FlexLayoutModule,
-    QuillModule.forRoot(),
+    QuillModule.forRoot()
   ],
   providers: [PostService]
 })
