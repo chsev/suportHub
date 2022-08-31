@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, FieldPath } from '@angular/fire/compat/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { UiService } from 'src/app/shared/services/ui.service';
-import { map } from 'rxjs/Operators';
+import { map } from 'rxjs/operators';
 import { Company } from 'src/app/shared/models/company.model';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { increment, arrayUnion } from '@angular/fire/firestore';
@@ -33,7 +33,7 @@ export class CompanyService {
             const data = a.payload.doc.data() as Company;
             const id = a.payload.doc.id;
             return { ...data, id };
-          }))
+          })),
         )
         .subscribe(
           (fetchedCompanies: Company[]) => {
@@ -79,8 +79,8 @@ export class CompanyService {
         (docRef) => {
           console.log("newDoc:" + docRef.id)
           return docRef.id;
-        }
-      ).catch(
+        })
+      .catch(
         (err) => {
           console.log(err);
           return undefined;

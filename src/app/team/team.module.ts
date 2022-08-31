@@ -10,6 +10,7 @@ import { MaterialModule } from '../material/material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { FormsModule } from '@angular/forms';
+import { BottomSheetMembersOptionsTeam, ViewTeamComponent } from './view-team/view-team.component';
 
 
 @NgModule({
@@ -17,7 +18,9 @@ import { FormsModule } from '@angular/forms';
     CreateTeamComponent,
     EditTeamComponent,
     ListTeamComponent,
-    DeleteTeamComponent
+    DeleteTeamComponent,
+    ViewTeamComponent,
+    BottomSheetMembersOptionsTeam
   ],
   imports: [
     CommonModule,

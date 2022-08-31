@@ -2,16 +2,15 @@ import { Component, OnDestroy, OnInit, AfterViewInit, ViewChild } from '@angular
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Company } from 'src/app/shared/models/company.model';
 import { UiService } from 'src/app/shared/services/ui.service';
 import { CompanyService } from '../services/company.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DeleteCompanyComponent } from '../delete-company/delete-company.component';
 import { JoinOpenCompanyComponent } from './joinOpen-company/joinOpen-company.component';
 import { JoinClosedCompanyComponent } from './joinClosed-company/joinClosed-company.component';
 import { AccountService } from 'src/app/account/services/account.service';
+import { User } from 'src/app/shared/models/user.model';
 
 @Component({
   selector: 'app-list-company',
@@ -21,10 +20,12 @@ import { AccountService } from 'src/app/account/services/account.service';
 export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   displayedColumns = ['name', 'segment', 'nMembers', 'isOpen', 'button'];
   dataSource = new MatTableDataSource<Company>();
-  private companyChangedSub!: Subscription;
+  private companyChangedSub: Subscription | undefined;
+  private userDataChangedSub: Subscription | undefined;
+  user: User | undefined;
 
   isLoading = false;
-  private loadingSub!: Subscription;
+  private loadingSub: Subscription | undefined;
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -38,12 +39,16 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.loadingSub = this.uiService.loadingStateChanged
+    .subscribe(isLoading => this.isLoading = isLoading);
+    
+    this.userDataChangedSub = this.accountService.userDataChanged
+    .subscribe( (userData: User) => this.user = userData);
+
     this.companyChangedSub = this.companyService.companyArrayChanged
       .subscribe((companies: Company[]) => this.dataSource.data = companies);
-
-    this.loadingSub = this.uiService.loadingStateChanged
-      .subscribe(isLoading => this.isLoading = isLoading);
-      
+    
+    this.accountService.fetchUserData();
     this.companyService.fetchCompanies();
   }
 
@@ -55,8 +60,9 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   ngOnDestroy(): void {
-    this.companyChangedSub.unsubscribe();
-    this.loadingSub.unsubscribe();
+    this.companyChangedSub?.unsubscribe();
+    this.loadingSub?.unsubscribe();
+    this.userDataChangedSub?.unsubscribe();
   }
 
   applyFilter(event: Event) {
@@ -86,10 +92,10 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(answer => {
-      if (answer) {
+      if (answer && this.user) {
         console.log("Aceitou Open");
         this.accountService.updateCompany(company.id!);
-        this.companyService.addMember(company.id!, this.accountService.getUserID()!)
+        this.companyService.addMember(company.id!, this.user.id!)
       }
     });
   }
@@ -100,10 +106,10 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(answer => {
-      if (answer) {
+      if (answer && this.user) {
         console.log("Aceitou Closed");
         this.accountService.updateCompany(company.id!);
-        this.companyService.addMember(company.id!, this.accountService.getUserID()!)
+        this.companyService.addMember(company.id!, this.user.id!)
       }
     });
   }

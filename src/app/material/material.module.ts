@@ -26,6 +26,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 
@@ -58,7 +59,8 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatSlideToggleModule,
     MatExpansionModule,
     MatTooltipModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatProgressBarModule
   ],
   exports: [
     MatSliderModule,
@@ -86,7 +88,8 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatSlideToggleModule,
     MatExpansionModule,
     MatTooltipModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatProgressBarModule
   ]
 })
 export class MaterialModule { }

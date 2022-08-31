@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { UiService } from 'src/app/shared/services/ui.service';
-import { map } from 'rxjs/Operators';
+import { map } from 'rxjs/operators';
 import { User } from 'src/app/shared/models/user.model';
 import { Subject, Subscription } from 'rxjs';
 

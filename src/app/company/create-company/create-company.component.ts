@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AccountService } from 'src/app/account/services/account.service';
 import { User } from 'src/app/shared/models/user.model';
 import { CompanyService } from '../services/company.service';
@@ -13,7 +14,8 @@ import { CompanyService } from '../services/company.service';
 export class CreateCompanyComponent implements OnInit {
   companyForm!: UntypedFormGroup;
   user: User | undefined;
-  userID: string | undefined; 
+  private userDataChangedSub: Subscription | undefined;
+  // userID: string | undefined; 
   adminName: string = '';
   administrator = new UntypedFormControl('');
 
@@ -32,16 +34,21 @@ export class CreateCompanyComponent implements OnInit {
       isPublic: new UntypedFormControl(false)
     })
     
-    this.userID = this.accountService.getUserID();
-    this.user = this.accountService.getUser();
+    // this.userID = this.accountService.getUserID();
+    this.userDataChangedSub = this.accountService.userDataChanged
+      .subscribe( (userData: User) => {
+        this.user = userData;
+        this.administrator.setValue(`${this.user.name} (${this.user.email})`)
+      })
+    this.accountService.fetchUserData();
+  }
 
-    if(this.user && this.userID){
-      this.administrator.setValue(`${this.user.name} (${this.user.email})`)
-    }
+  ngOnDestroy(): void {
+    this.userDataChangedSub?.unsubscribe();
   }
 
   async onSubmit(){
-    let newCompanyid = await this.companyService.insert({...this.companyForm.value, administrator: this.userID});
+    let newCompanyid = await this.companyService.insert({...this.companyForm.value, administrators: [this.user?.id]});
     if(newCompanyid){
       console.log("cmpy id:" + newCompanyid);
       this.accountService.updateCompany(newCompanyid);

@@ -1,7 +1,7 @@
 <section *ngIf='!isLoading'>
     <h1 fxLayoutAlign="center">Editar Empresa</h1>
 
-    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="companyForm" fxLayoutGap="15px"
+    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="companyForm" fxLayoutGap="0px"
         (ngSubmit)="onSubmit()">
 
         <div class="dual-container">
@@ -15,9 +15,11 @@
 
         <div class="dual-container">
             <mat-icon>assignment_ind</mat-icon>
-            <mat-form-field appearance="outline">
-                <mat-label>Administrador</mat-label>
-                <input matInput readonly placeholder="Administrador" type="text" [formControl]="administrator">
+            <mat-form-field *ngIf="administrators.length > 0" appearance="outline" >
+                <mat-label>Administradores</mat-label>
+                <div *ngFor="let item of administrators">
+                    <input matInput readonly type="text" [formControl]=item>
+                </div>
             </mat-form-field>
         </div>
 

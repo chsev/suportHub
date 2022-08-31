@@ -3,6 +3,10 @@ import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms
 import { Router } from '@angular/router';
 import { System } from 'src/app/shared/models/system.model';
 import { SystemService } from '../services/system.service';
+import { Location } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { TeamService } from 'src/app/team/services/team.service';
+import { Team } from 'src/app/shared/models/team.model';
 
 @Component({
   selector: 'app-edit-system',
@@ -10,40 +14,45 @@ import { SystemService } from '../services/system.service';
   styleUrls: ['./edit-system.component.css']
 })
 export class EditSystemComponent implements OnInit {
-  systemId!: string | null;
-  system!: any;
+  system: System | undefined;
   systemForm: UntypedFormGroup = new UntypedFormGroup({
     name: new UntypedFormControl('', { validators: [Validators.required] }),
     description: new UntypedFormControl(''),
   })
+  teamName = new UntypedFormControl('');
 
   constructor(
     private systemService: SystemService,
-    private router: Router
+    private teamService: TeamService,
+    private router: Router,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
-    this.systemId = this.systemService.editingSystemId;
+    let state: any = this.location.getState();
+    this.systemService.fetchSystemDoc(state.companyId, state.systemId)
+      .subscribe((systemData: System) => {
+        this.system = systemData;
+        this.systemForm.setValue({
+          name: this.system.name,
+          description: this.system.description,
+        });
+        this.fetchTeamName(this.system.companyId, this.system.teams[0]);
 
-    if (!this.systemId) {
-      this.onCancelOrExit();
-    } else {
-      this.systemService.editingSystemChanged
-        .subscribe(payload => {
-          this.system = payload as System;
-          this.systemForm.setValue({
-            name: payload.name,
-            description: payload.description,
-          })
-        }
-        );
-      this.systemService.searchById(this.systemId)
-    }
+      })
   }
 
+  fetchTeamName(companyId: string, teamId: string) {
+    let sub = this.teamService.fetchTeamDoc(companyId, teamId)
+      .subscribe((teamData: Team) => {
+        this.teamName.setValue(teamData.name!);
+        sub?.unsubscribe();
+      }
+      );
+  }
 
   onSubmit() {
-    this.systemService.update({ id: this.systemId, ...this.systemForm.value });
+    this.systemService.update( this.system?.companyId!, this.system?.id!, {...this.systemForm.value });
     this.router.navigate(["system/list"]);
   }
 

@@ -1,19 +1,36 @@
 <section>
     <h1 fxLayoutAlign="center">Novo Sitema</h1>
 
-    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="systemForm" fxLayoutGap="15px"
+    <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="systemForm" fxLayoutGap="0px"
         (ngSubmit)="onSubmit()">
 
-        <mat-form-field>
-            <input matInput type="text" placeholder="Nome do Sistema" formControlName="name">
-            <mat-error *ngIf="systemForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
-        </mat-form-field>
+        <div class="dual-container">
+            <mat-icon>precision_manufacturing</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Nome do Sistema</mat-label>
+                <input matInput type="text" placeholder="Nome do Sistema" formControlName="name">
+                <mat-error *ngIf="systemForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+            </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Descrição</mat-label>
-            <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
-        </mat-form-field>
-        
+        <div class="dual-container">
+            <mat-icon>group</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Equipe</mat-label>
+                <input matInput readonly type="text" placeholder="Equipe" [formControl]="teamName">
+            </mat-form-field>
+        </div>
+
+
+        <div fxLayoutAlign="center center" class="dual-container">
+            <mat-icon>description</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Descrição</mat-label>
+                <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+            </mat-form-field>
+        </div>
+
+
         <div fxLayout="row" fxLayoutGap="10px">
             <button type="submit" mat-raised-button color="primary" [disabled]="systemForm.invalid">Salvar</button>
             <button type="button" mat-raised-button color="warn" (click)="onCancel()">Cancelar</button>

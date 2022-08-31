@@ -4,4 +4,5 @@ export interface User {
     email?: string,
     position?: string,
     companyId?: string
+    profileImg?: string,
 }

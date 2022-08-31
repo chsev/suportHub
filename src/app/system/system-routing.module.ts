@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListSystemComponent } from './list-system/list-system.component';
 import { CreateSystemComponent } from './create-system/create-system.component';
 import { EditSystemComponent } from './edit-system/edit-system.component';
+import { ViewSystemComponent } from './view-system/view-system.component';
 
 
 
@@ -11,7 +12,8 @@ const routes: Routes = [
     { path: 'system', redirectTo: 'system/list' }, 
     { path: 'system/list', component: ListSystemComponent},
     { path: 'system/new', component: CreateSystemComponent},
-    { path: 'system/edit', component: EditSystemComponent}
+    { path: 'system/edit', component: EditSystemComponent},
+    { path: 'system/view', component: ViewSystemComponent},
 ]
 
 @NgModule({

@@ -1,0 +1,150 @@
+<mat-card *ngIf="system" style="width: 95%; margin: auto;">
+  <div fxLayout="row">
+    <mat-card-header>
+      <mat-card-title>{{system.name}}</mat-card-title>
+      <mat-card-subtitle>{{system.description}}</mat-card-subtitle>
+    </mat-card-header>
+    <span style="flex: 1 1 auto;"></span>
+    <button mat-icon-button (click)="showSystemCardContent = !showSystemCardContent">
+      <mat-icon> {{showSystemCardContent ? 'expand_less' : 'expand_more'}} </mat-icon>
+    </button>
+  </div>
+
+  <mat-card-actions *ngIf="showSystemCardContent" align="end">
+    <button mat-button [disabled]="!userIsAdmin" (click)="onEdit()">
+      <mat-icon>edit</mat-icon>
+      <span>Editar</span>
+    </button>
+
+    <button mat-button [disabled]="userIsAdmin">
+      <mat-icon>blur_on</mat-icon>
+      <span>Excluir</span>
+    </button>
+  </mat-card-actions>
+</mat-card>
+
+<br>
+
+<div style="width: 90%; padding: 5px;" fxLayout="row" fxLayoutAlign="start center">
+  <h2 style="margin: 0%;">Documentos</h2>
+  <span style="flex: 1 1 auto;"></span>
+  <button mat-raised-button (click)="onNewDoc()">
+    <mat-icon>file_upload</mat-icon>
+    <span style="padding-left: 8px;">Carregar Documento</span>
+  </button>
+</div>
+
+
+<table mat-table #docs_table style="width: 99%; margin: auto" [dataSource]="dataSourceDocs" multiTemplateDataRows
+  class="mat-elevation-z8" matSort>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Nome </th>
+    <td mat-cell *matCellDef="let element">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+        <span> <mat-icon>insert_drive_file</mat-icon> </span>
+        <span> {{element.docArray[element.displayedVersion].name}} </span>
+      </div>
+    </td>
+  </ng-container>
+
+  <!-- Size Column -->
+  <ng-container matColumnDef="size">
+    <th mat-header-cell *matHeaderCellDef> Tamanho </th>
+    <td mat-cell *matCellDef="let element"> {{humanFileSize(element.docArray[element.displayedVersion].size)}} </td>
+  </ng-container>
+
+
+  <!-- contentType Column -->
+  <ng-container matColumnDef="contentType">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo </th>
+    <td mat-cell *matCellDef="let element"> {{element.docArray[element.displayedVersion].contentType}} </td>
+  </ng-container>
+
+
+  <!-- version Column -->
+  <ng-container matColumnDef="version">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Versão </th>
+    <td mat-cell *matCellDef="let element"> {{element.docArray[element.displayedVersion].version}} </td>
+  </ng-container>
+
+
+  <!-- lastModified Column -->
+  <ng-container matColumnDef="lastmodified">
+    <th mat-header-cell *matHeaderCellDef> Modificado em </th>
+    <td mat-cell *matCellDef="let element"> {{element.docArray[element.displayedVersion].updated}} </td>
+  </ng-container>
+
+<!-- action Column -->
+  <ng-container matColumnDef="action">
+    <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+    <td mat-cell *matCellDef="let element">
+      <span>
+        <button mat-icon-button (click)="openDownloadURL(element.docArray[element.displayedVersion].id)">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+      </span>
+    </td>
+  </ng-container>
+
+  <!-- expand Column -->
+  <ng-container matColumnDef="expand">
+    <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+    <td mat-cell *matCellDef="let element">
+      <button mat-icon-button aria-label="expand row"
+        (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
+        <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
+        <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
+      <div class="example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+        <div fxFlex fxLayout="row" fxLayoutAlign="end center">
+
+          <span> Outras versões:
+            <mat-form-field  appearance="fill">
+              <mat-label>versão</mat-label>
+              <mat-select [(value)]="element.displayedVersion">
+                <mat-option *ngFor="let item of element.docArray; let i = index" [value]="i">
+                  {{item.version}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </span>
+
+          <button mat-raised-button (click)="onNewVersion(element.docArray[element.displayedVersion].id)"
+            style="margin-left: 20px; margin-top: 0; margin-bottom: 18px; margin-right: 120px;"> 
+            <mat-icon>add</mat-icon>
+            <span style="padding-left: 8px;">Adicionar Versão</span>
+          </button>
+        </div>
+
+      </div>
+    </td>
+  </ng-container>
+
+
+  
+  <!-- (click)="expandedElement = expandedElement === element ? null : element" -->
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+  <tr mat-row *matRowDef="let element; columns: columnsToDisplayWithExpand;" class="example-element-row"
+  [class.example-expanded-row]="expandedElement === element"
+
+    >
+  </tr>
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+</table>
+
+
+<!-- <br><br>
+<p>view-system - System data:</p>
+<p>{{ system | json }}</p>
+
+
+<br><br>
+<p>view-system - System data:</p>
+<p>{{ documents | json }}</p> -->

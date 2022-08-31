@@ -10,6 +10,11 @@ import { MaterialModule } from '../material/material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { FormsModule } from '@angular/forms';
+import { ViewSystemComponent } from './view-system/view-system.component';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
+import { UploadDocSystemComponent } from './view-system/uploadDoc-system/uploadDoc-system.component';
+import { DocService } from './services/doc.service';
+import { UploadVersionSystemComponent } from './view-system/uploadVersion-system/uploadVersion-system.component';
 
 
 
@@ -18,7 +23,10 @@ import { FormsModule } from '@angular/forms';
     CreateSystemComponent,
     EditSystemComponent,
     DeleteSystemComponent,
-    ListSystemComponent
+    ListSystemComponent,
+    ViewSystemComponent,
+    UploadDocSystemComponent,
+    UploadVersionSystemComponent
   ],
   imports: [
     CommonModule,
@@ -26,8 +34,9 @@ import { FormsModule } from '@angular/forms';
     MaterialModule,
     FlexLayoutModule,
     AngularFirestoreModule,
-    FormsModule
+    FormsModule,
+    AngularFireStorageModule
   ],
-  providers: [SystemService]
+  providers: [SystemService, DocService]
 })
 export class SystemModule { }

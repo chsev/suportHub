@@ -1,0 +1,54 @@
+<div style="height: auto; width: 400px;">
+    <h1 mat-dialog-title>Carregar Versão</h1>
+    <h3>Escolha um documento para adicionar como versão</h3>
+
+    <mat-dialog-content>
+        <input type="file" style="display: none;" (change)="onFileSelected($event)" #fileInput>
+        <div>
+            <mat-form-field style="width: 95%" appearance="outline">
+                <input matInput readonly [value]="fileName" placeholder="escolha um arquivo">
+                <span matSuffix>
+                    <button mat-mini-fab color="primary" (click)="fileInput.click()">
+                        <mat-icon>attach_file</mat-icon>
+                    </button>
+                </span>
+            </mat-form-field>
+        </div>
+
+        <div>
+            <mat-form-field appearance="outline">
+                <mat-label>versão do documento</mat-label>
+                <input matInput type="text" [formControl]="fileVersion">
+                <mat-error *ngIf="fileVersion.hasError('required')">Campo obrigatório</mat-error>
+                <mat-error *ngIf="fileVersion.hasError('pattern')">Nome inválido</mat-error>
+                <mat-error *ngIf="fileVersion.hasError('uniqueVersion')">Este identificador de versão já existe</mat-error>
+            </mat-form-field>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="10px">
+            <button *ngIf="!uploadComplete && !uploadProgress"
+                mat-mini-fab color="primary" [disabled]="!myFile || !fileVersion.valid" (click)="uploadFile()">
+                <mat-icon>file_upload</mat-icon>
+            </button>
+
+            <button *ngIf="uploadProgress && !uploadComplete" 
+                mat-mini-fab color="warn" class="cancel-upload" (click)="cancelUpload()">
+                <mat-icon>cancel</mat-icon>
+            </button>
+
+            <button *ngIf="uploadComplete" mat-mini-fab (click)="resetUpload()">
+                <mat-icon>check_circle</mat-icon>
+            </button>
+        </div>
+        <br>
+        <div>
+            <mat-progress-bar *ngIf="uploadProgress" 
+                class="progress-bar" mode="determinate" [value]="uploadProgress">
+            </mat-progress-bar>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button [mat-dialog-close]="true">Fechar</button>
+    </mat-dialog-actions>
+</div>

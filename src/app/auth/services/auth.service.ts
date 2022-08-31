@@ -42,7 +42,7 @@ export class AuthService {
         this.isAuthenticated = true;
         this.authChange.next(true);
         this.accountService.fetchUserData();
-        this.router.navigate(['/company']);
+        this.router.navigate(['/post']);
       } else {
         this.cancelSubscriptions();
         this.authChange.next(false);
@@ -62,7 +62,7 @@ export class AuthService {
     this.fireauth.createUserWithEmailAndPassword(login.email!, login.password!)
       .then(userCredencials => {
         this.db.collection('users').doc(userCredencials.user?.uid)
-          .set(user);
+            .set(user);
       })
       .catch(error => {
         this.uiService.showSnackbar(error.message, undefined, 10000);
@@ -78,10 +78,6 @@ export class AuthService {
     this.uiService.loadingStateChanged.next(true);
     this.fireauth.signInWithEmailAndPassword(login.email!, login.password!)
       .then(userCredentials => {
-        // console.log(userCredentials); //test
-        // console.log(userCredentials.user?.uid); // test
-        // console.log("---");
-        this.accountService.currentUID = userCredentials.user?.uid;
         this.accountService.fetchUserData();
       })
       .catch(error => {

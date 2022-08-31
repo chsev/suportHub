@@ -1,0 +1,74 @@
+<mat-card style="max-width: 90%; margin: auto;">
+    <h1>{{post.title}}</h1>
+    <mat-card-header>
+        <img mat-card-avatar style="background-size: cover;" src="">
+        <mat-card-title> user_name </mat-card-title>
+        <mat-card-subtitle>publicado em: {{post.created}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        {{originalMsg?.content}}
+    </mat-card-content>
+</mat-card>
+
+<br>
+<div style="max-width: 90%; margin: auto;" fxLayout="row">
+    <h2>Comentários:</h2>
+    <span style="flex: 1 1 auto;"></span>
+    <mat-form-field>
+        <mat-label>Ordenar por:</mat-label>
+        <mat-select [(value)]="orderMsgBy" (selectionChange)="orderMsgs()">
+            <mat-option value='mostVoted'>mais votado</mat-option>
+            <mat-option value='newest'>mais recente</mat-option>
+            <mat-option value='oldest'>mais antigo</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+
+<div *ngFor="let reply of replyMsgs">
+    <mat-card style="max-width: 80%; margin: auto;">
+        <div fxLayout="row">
+            <div fxFlex="10" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
+                <div>
+                    <button mat-button (click)="upvote(reply.id!)">
+                        <mat-icon *ngIf="reply.upvote.length > 0">thumb_up_alt</mat-icon>
+                        <mat-icon *ngIf="reply.upvote.length == 0">thumb_up_off_alt</mat-icon>
+                    </button>
+                </div>
+
+                <div>
+                    {{reply.upvote.length - reply.downvote.length}}
+                </div>
+
+                <div>
+                    <button mat-button (click)="downvote(reply.id!)">
+                        <mat-icon *ngIf="reply.downvote.length > 0">thumb_down_alt</mat-icon>
+                        <mat-icon *ngIf="reply.downvote.length == 0">thumb_down_off_alt</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <div fxFlex="90">
+                <mat-card-header>
+                    <img mat-card-avatar style="background-size: cover;" src="">
+                    <mat-card-title> user_name </mat-card-title>
+                    <mat-card-subtitle>publicado em: {{reply.created}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    {{reply.content}}
+                </mat-card-content>
+            </div>
+        </div>
+
+    </mat-card>
+    <br>
+</div>
+
+<br>
+<mat-divider></mat-divider>
+<br>
+
+<h2>Novo comentário:</h2>
+<form>
+    <mat-form-field>
+        <textarea matInput placeholder="Descrição" rows="6" cols="100"></textarea>
+    </mat-form-field>
+</form>

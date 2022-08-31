@@ -18,9 +18,9 @@ import { EditPositionComponent } from './edit-position/edit-position.component';
   styleUrls: ['./list-account.component.css']
 })
 export class ListAccountComponent implements OnInit {
-  avatarSrc: String = 'https://material.angular.io/assets/img/examples/shiba1.jpg';
-  user: User | undefined;
+  avatarSrc = "assets/images/profile.png"; //for testing
   company: Company | undefined;
+  user: User | undefined;
   private userDataChangedSub!: Subscription;
   private companyDataSub!: Subscription;
   private loadingSub!: Subscription;

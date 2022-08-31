@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AccountService } from 'src/app/account/services/account.service';
@@ -8,36 +8,18 @@ import { System } from 'src/app/shared/models/system.model';
 import { Team } from 'src/app/shared/models/team.model';
 import { User } from 'src/app/shared/models/user.model';
 import { CompanyService } from '../services/company.service';
-import {MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA} from '@angular/material/bottom-sheet';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { TeamService } from 'src/app/team/services/team.service';
+import { SystemService } from 'src/app/system/services/system.service';
+import { JoinOpenTeamComponent } from './joinOpen-team/joinOpen-team.component';
+import { JoinClosedTeamComponent } from './joinClosed-team/joinClosed-team.component';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
 
-export interface UserFlaged extends User {
+export interface UserFlagged extends User {
   isAdmin?: boolean;
 }
 
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
-
-var t1: Team = {id: "9du21hdu", name: "Projetos", description: "uma equipe de projetos"};
-var t2: Team = {id: "ndoidhd3", name: "Implantação", description: "uma equipe de implantação"};
-var t3: Team = {id: "dn9213d9", name: "Comercial", description: "uma equipe comercial"};
 
 @Component({
   selector: 'app-view-company',
@@ -46,48 +28,58 @@ var t3: Team = {id: "dn9213d9", name: "Comercial", description: "uma equipe come
 })
 export class ViewCompanyComponent implements OnInit {
 
-  members: UserFlaged[] = []; //[ { "position": "office-boy executivo", "email": "gelokod354@krunsea.com", "name": "Geloko", "company": "3laONkzasAqeZrQwTlFw" }, { "position": "Admin", "name": "Carlos", "email": "chsev@test.com" } ];
+  members: UserFlagged[] = [];
   membersColumns: string[] = ['name', 'email', 'position', 'expand'];
+  dataSourceMembers = new MatTableDataSource<UserFlagged>();
+  @ViewChild('members') membersTable: MatTable<UserFlagged> | undefined;
 
-  teams: Team[] = [t1, t2, t3];
+  teams: Team[] = [];
+  displayedColumnsTeams = ['name', 'description', 'nmembers', 'isopen', 'action'];
+  dataSourceTeams = new MatTableDataSource<Team>();
+  @ViewChild('teams') teamsTable: MatTable<Team> | undefined;
+
+
   systems: System[] = [];
+  displayedColumnsSystems = ['name', 'description', 'ndocs', 'action'];
+  dataSourceSystems = new MatTableDataSource<System>();
+  @ViewChild('systems') systemsTable: MatTable<System> | undefined;
 
   user: User | undefined;
   company: Company | undefined;
   showCompanyCardContent = false;
   private userDataChangedSub!: Subscription;
+  private teamChangedSub!: Subscription;
 
   isLoading = false;
   userIsAdmin = false;
 
-  //test:
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = ELEMENT_DATA;
-
-  @ViewChild(MatTable) table: MatTable<User> | undefined;
 
   constructor(
     private companyService: CompanyService,
     private accountService: AccountService,
+    private teamService: TeamService,
+    private systemService: SystemService,
     private router: Router,
-    private _bottomSheet: MatBottomSheet
+    private _bottomSheet: MatBottomSheet,
+    private dialog: MatDialog
   ) { }
 
 
-  toUserFlaged(user: User): UserFlaged {
-    let adminFlag: boolean = this.company?.administrator == user.id;
-    return { ...user, isAdmin: adminFlag }
-  }
+ 
 
 
   ngOnInit(): void {
     this.getUser();
   }
 
+  ngOnDestroy(): void {
+    if (this.userDataChangedSub) { this.userDataChangedSub.unsubscribe(); }
+    if( this.teamChangedSub){ this.teamChangedSub.unsubscribe(); }
+  }
+
 
   private getUser() {
-    this.userDataChangedSub = this.accountService.userDataChanged
-      .subscribe(
+    this.userDataChangedSub = this.accountService.userDataChanged.subscribe(
         (userData: User) => {
           this.user = userData;
           this.fetchCompanyData(userData.companyId);
@@ -103,12 +95,38 @@ export class ViewCompanyComponent implements OnInit {
         .subscribe((data) => {
           if (data) {
             this.company = data;
-            if(this.company.administrator == this.user?.id){
+            if(this.company.administrators?.includes(this.user?.id!)){
+
+              //debug:
+              console.log('administrators:');
+              console.log(this.company.administrators);
+              console.log('user id:');
+              console.log(this.user?.id!);
+              console.log('compare:');
+              console.log(this.company.administrators?.includes(this.user?.id!));
+
               this.userIsAdmin = true;
             }
             this.getMembersData();
+            this.fetchTeams(this.company.id);
           }
         });
+    }
+  }
+
+  private fetchTeams(companyId: string | undefined){
+    if(companyId){
+      this.teamChangedSub = this.teamService.teamArrayChanged
+        .subscribe( (data: Team[]) => {
+          this.teams = data;
+          this.dataSourceTeams.data = data;
+
+          //will only fetch systems linked to teams
+          let allSystems: string[] = [];
+          this.teams.forEach( t => t.systems? allSystems.push(...t.systems): '' );
+          this.getSystemsData(allSystems);
+        })
+      this.teamService.fetchTeams(companyId)
     }
   }
 
@@ -116,38 +134,102 @@ export class ViewCompanyComponent implements OnInit {
   private getMembersData() {
     this.accountService
       .fetchUserDocList(['44dvYb0VdnfyRXBdXrtED7afFAp1', 'HJhHgF2trIOv3UUUfJYnzlCas6w2', 'v4yisPjzS5VTrzrjl6QX6pTKdSi2'])
-      .subscribe(
-        (list) => {
-          if (list) {
-            this.members = list.map(value => this.toUserFlaged(value));
-            this.table!.renderRows();
+      .subscribe( (mebersList: User[]) => {
+          if (mebersList) {
+            let flaggedMembers = mebersList.map(value => this.toUserFlaged(value));
+            this.members = flaggedMembers;
+            this.dataSourceMembers.data = flaggedMembers;
+            this.membersTable!.renderRows();
           }
-        }
-      );
+      });
   }
 
 
-  ngOnDestroy(): void {
-    if (this.userDataChangedSub) {
-      this.userDataChangedSub.unsubscribe();
-    }
+  private getSystemsData(systemsIds: string[]): void {
+    this.systemService.fetchSystemDocList(this.company?.id!, systemsIds)
+    .subscribe((systemsList)=>{
+      this.systems = systemsList;
+      this.dataSourceSystems.data = systemsList;
+      this.systemsTable?.renderRows();
+    })
   }
+
+
 
   onViewTeam(teamId: string){
-    
+    let t = this.teams.find( e => e.id == teamId);
+    this.router.navigate(['team/view'], {state: {teamId: t?.id, companyId: t?.companyId}});
   }
+
 
   onEdit() {
     if (this.company?.id) {
-      // this.companyService.editingCompanyId = this.company.id;
-      this.router.navigate(['company/edit'], {queryParams: {id: this.company.id}});
+      this.router.navigate(['company/edit'], {state: {id: this.company.id}});
     }
   }
 
-  openBottomSheet(): void {
-    this._bottomSheet.open(BottomSheetOverviewMembersOptions, {
-      data: {names: ['Frodo', 'Bilbo']}
+  onNewTeam(){
+    this.router.navigate(['team/new']);
+  }
+
+  joinTeam(teamId: string){
+    let team = this.teams.find(t => t.id == teamId);
+    if(!team){
+      return;
+    }
+
+    if(team.isOpen){
+      this.joinOpenTeam(team);
+    }
+    else{
+      this.joinClosedTeam(team);
+    }
+  }
+
+  joinOpenTeam(team: Team){
+    const dialogRef: MatDialogRef<JoinOpenTeamComponent> = this.dialog.open(JoinOpenTeamComponent, {
+      data: { name: team.name }
     });
+
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer) {
+        console.log("Aceitou Open");
+        // this.accountService.updateCompany(company.id!);
+        // this.companyService.addMember(company.id!, this.accountService.getUser()?.id!)
+      }
+    });
+  }
+
+  joinClosedTeam(team: Team){
+    const dialogRef: MatDialogRef<JoinClosedTeamComponent> = this.dialog.open(JoinClosedTeamComponent, {
+      data: { name: team.name }
+    });
+
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer) {
+        console.log("Aceitou Closed");
+        // this.accountService.updateCompany(company.id!);
+        // this.companyService.addMember(company.id!, this.accountService.getUser()?.id!)
+      }
+    });
+  }
+
+  onViewSystem(systemId: string){
+    let s = this.systems.find(e => e.id == systemId);
+    this.router.navigate(['system/view'], {state: {companyId: s?.companyId, systemId: s?.id}});
+  }
+
+
+  openBottomSheet(userId: string): void {
+    let usr = this.members.find( e => e.id == userId);
+    this._bottomSheet.open(BottomSheetOverviewMembersOptions, {
+      data: {name: usr?.name, email: usr?.email, isAdmin: usr?.isAdmin}
+    });
+  }
+
+  toUserFlaged(user: User): UserFlagged {
+    let adminFlag: boolean = this.company?.administrators?.includes(user.id!)? true : false;
+    return { ...user, isAdmin: adminFlag }
   }
 
 }

@@ -19,6 +19,7 @@ import { UserModule } from './user/user.module';
 import { AngularFireModule } from '@angular/fire/compat';
 import { environment } from '../environments/environment';
 import { AccountModule } from './account/account.module';
+import { PostModule } from './post/post.module';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { AccountModule } from './account/account.module';
     AuthModule,
     NavigationModule,
     AccountModule,
+    PostModule,
     AngularFireModule.initializeApp(environment.firebase),
   ],
   providers: [],

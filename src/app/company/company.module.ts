@@ -17,6 +17,8 @@ import { ListallCompanyComponent } from './listall-company/listall-company.compo
 import { JoinOpenCompanyComponent } from './list-company/joinOpen-company/joinOpen-company.component';
 import { JoinClosedCompanyComponent } from './list-company/joinClosed-company/joinClosed-company.component';
 import { BottomSheetOverviewMembersOptions, ViewCompanyComponent } from './view-company/view-company.component';
+import { JoinClosedTeamComponent } from './view-company/joinClosed-team/joinClosed-team.component';
+import { JoinOpenTeamComponent } from './view-company/joinOpen-team/joinOpen-team.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import { BottomSheetOverviewMembersOptions, ViewCompanyComponent } from './view-
     JoinOpenCompanyComponent,
     JoinClosedCompanyComponent,
     ViewCompanyComponent,
-    BottomSheetOverviewMembersOptions
+    BottomSheetOverviewMembersOptions,
+    JoinClosedTeamComponent,
+    JoinOpenTeamComponent
   ],
   imports: [
     CommonModule,

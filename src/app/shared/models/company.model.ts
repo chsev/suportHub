@@ -3,7 +3,7 @@ export interface Company {
     name?: string,
     segment?: string,
     description?: string,
-    administrator?: string, 
+    administrators?: string[], 
     isOpen?: boolean,
     isPublic?: boolean,
     nMembers?: number,

@@ -4,16 +4,43 @@
     <form fxLayout="column" fxLayoutAlign="start center" [formGroup]="teamForm" fxLayoutGap="15px"
         (ngSubmit)="onSubmit()">
 
-        <mat-form-field>
-            <input matInput type="text" placeholder="Nome da Equipe" formControlName="name">
-            <mat-error *ngIf="teamForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
-        </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Descrição</mat-label>
-            <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
-        </mat-form-field>
+        <div class="dual-container">
+            <mat-icon>group</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Nome da Empresa</mat-label>
+                <input matInput type="text" placeholder="Nome da Equipe" formControlName="name">
+                <mat-error *ngIf="teamForm.controls['name'].hasError('required')">Campo obrigatório</mat-error>
+            </mat-form-field>
+        </div>
 
+
+        <div class="dual-container">
+            <mat-icon>assignment_ind</mat-icon>
+            <mat-form-field *ngIf="administrators.length > 0" appearance="outline" >
+                <mat-label>Administradores</mat-label>
+                <div *ngFor="let item of administrators">
+                    <input matInput readonly type="text" [formControl]=item>
+                </div>
+            </mat-form-field>
+        </div>    
+
+
+        <div fxLayoutAlign="center center" class="dual-container">
+            <mat-icon>description</mat-icon>
+            <mat-form-field appearance="outline">
+                <mat-label>Descrição</mat-label>
+                <textarea matInput placeholder="Descrição" formControlName="description" rows="6" cols="100"></textarea>
+                <mat-error *ngIf="teamForm.controls['description'].hasError('required')">Forneça alguma descrição para a equipe</mat-error>
+            </mat-form-field>
+        </div>
+
+        <div fxLayout="column">
+            <mat-checkbox matInput formControlName="isOpen">Equipe aberta</mat-checkbox>
+            <mat-hint>uma equipe aberta não requer aprovação de novos membros</mat-hint>
+        </div>
+
+        <br><br>
         
         <div fxLayout="row" fxLayoutGap="10px">
             <button type="submit" mat-raised-button color="primary" [disabled]="teamForm.invalid">Salvar</button>
