@@ -27,6 +27,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatMenuModule} from '@angular/material/menu';
 
 
 
@@ -60,7 +62,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     MatExpansionModule,
     MatTooltipModule,
     MatBottomSheetModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatChipsModule,
+    MatMenuModule,
   ],
   exports: [
     MatSliderModule,
@@ -89,7 +93,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     MatExpansionModule,
     MatTooltipModule,
     MatBottomSheetModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatChipsModule,
+    MatMenuModule
   ]
 })
 export class MaterialModule { }

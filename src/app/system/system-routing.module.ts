@@ -5,15 +5,16 @@ import { ListSystemComponent } from './list-system/list-system.component';
 import { CreateSystemComponent } from './create-system/create-system.component';
 import { EditSystemComponent } from './edit-system/edit-system.component';
 import { ViewSystemComponent } from './view-system/view-system.component';
+import { AuthGuard } from '../auth/auth.guard';
 
 
 
 const routes: Routes = [
     { path: 'system', redirectTo: 'system/list' }, 
-    { path: 'system/list', component: ListSystemComponent},
-    { path: 'system/new', component: CreateSystemComponent},
-    { path: 'system/edit', component: EditSystemComponent},
-    { path: 'system/view', component: ViewSystemComponent},
+    { path: 'system/list', component: ListSystemComponent, canActivate: [AuthGuard]},
+    { path: 'system/new', component: CreateSystemComponent, canActivate: [AuthGuard]},
+    { path: 'system/edit', component: EditSystemComponent, canActivate: [AuthGuard]},
+    { path: 'system/view', component: ViewSystemComponent, canActivate: [AuthGuard]},
 ]
 
 @NgModule({

@@ -1,74 +1,133 @@
-<mat-card style="max-width: 90%; margin: auto;">
-    <h1>{{post.title}}</h1>
-    <mat-card-header>
-        <img mat-card-avatar style="background-size: cover;" src="">
-        <mat-card-title> user_name </mat-card-title>
-        <mat-card-subtitle>publicado em: {{post.created}}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-        {{originalMsg?.content}}
-    </mat-card-content>
-</mat-card>
-
-<br>
-<div style="max-width: 90%; margin: auto;" fxLayout="row">
-    <h2>Comentários:</h2>
-    <span style="flex: 1 1 auto;"></span>
-    <mat-form-field>
-        <mat-label>Ordenar por:</mat-label>
-        <mat-select [(value)]="orderMsgBy" (selectionChange)="orderMsgs()">
-            <mat-option value='mostVoted'>mais votado</mat-option>
-            <mat-option value='newest'>mais recente</mat-option>
-            <mat-option value='oldest'>mais antigo</mat-option>
-        </mat-select>
-    </mat-form-field>
-</div>
-
-<div *ngFor="let reply of replyMsgs">
-    <mat-card style="max-width: 80%; margin: auto;">
+<div *ngIf="!isLoading">
+    <mat-card *ngIf="post" style="max-width: 90%; margin: auto;" fxLayout="column">
         <div fxLayout="row">
-            <div fxFlex="10" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
-                <div>
-                    <button mat-button (click)="upvote(reply.id!)">
-                        <mat-icon *ngIf="reply.upvote.length > 0">thumb_up_alt</mat-icon>
-                        <mat-icon *ngIf="reply.upvote.length == 0">thumb_up_off_alt</mat-icon>
-                    </button>
-                </div>
+            <mat-card-header>
+                <img mat-card-avatar style="background-size: cover;" [src]="getAuthor(post.usrId!)?.photoUrl">
+                <mat-card-title> {{getAuthor(originalMsg?.usrId!)?.name ?? 'user_name'}}</mat-card-title>
+                <mat-card-subtitle>publicado em: {{toDate(post.created)}}</mat-card-subtitle>
+            </mat-card-header>
+            <span style="flex: 1 1 auto;"></span>
+            <button mat-icon-button *ngIf="canEdit()" [matMenuTriggerFor]="postMenu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
 
-                <div>
-                    {{reply.upvote.length - reply.downvote.length}}
-                </div>
-
-                <div>
-                    <button mat-button (click)="downvote(reply.id!)">
-                        <mat-icon *ngIf="reply.downvote.length > 0">thumb_down_alt</mat-icon>
-                        <mat-icon *ngIf="reply.downvote.length == 0">thumb_down_off_alt</mat-icon>
-                    </button>
-                </div>
-            </div>
-            <div fxFlex="90">
-                <mat-card-header>
-                    <img mat-card-avatar style="background-size: cover;" src="">
-                    <mat-card-title> user_name </mat-card-title>
-                    <mat-card-subtitle>publicado em: {{reply.created}}</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                    {{reply.content}}
-                </mat-card-content>
-            </div>
+            <mat-menu #postMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="onEdit()">
+                    <mat-icon>edit</mat-icon>
+                    <span>Editar</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>delete_forever</mat-icon>
+                    <span>Apagar</span>
+                </button>
+            </mat-menu>
         </div>
 
+        <div>
+            <mat-divider></mat-divider><br>
+        </div>
+
+        <mat-card-content>
+            <h1 align="center">{{ post.title }}</h1>
+            <mat-chip-list>
+                <mat-chip *ngFor="let tag of post.tags">{{tag}}</mat-chip>
+            </mat-chip-list>
+            <quill-view [content]="originalMsg?.content" [preserveWhitespace]="true" [sanitize]="true" format="html">
+            </quill-view>
+        </mat-card-content>
+        <mat-card-actions align="end">
+
+            <button mat-button (click)="toggleLike()">
+                <mat-icon *ngIf="userLiked()">thumb_up_alt</mat-icon>
+                <mat-icon *ngIf="!userLiked()">thumb_up_off_alt</mat-icon>
+                <span>&nbsp; {{post.liked.length}}</span>
+            </button>
+            <button mat-button [disabled]="false">
+                <mat-icon>visibility</mat-icon>
+                <span>&nbsp; {{post.viewed}}</span>
+            </button>
+        </mat-card-actions>
     </mat-card>
+
     <br>
+    <div style="max-width: 90%; margin: auto;" fxLayout="row">
+        <h2>Comentários:</h2>
+        <span style="flex: 1 1 auto;"></span>
+        <mat-form-field>
+            <mat-label>Ordenar por:</mat-label>
+            <mat-select [(value)]="orderMsgBy" (selectionChange)="orderMsgs()">
+                <mat-option value='mostVoted'>mais votado</mat-option>
+                <mat-option value='newest'>mais recente</mat-option>
+                <mat-option value='oldest'>mais antigo</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div *ngFor="let reply of replyMsgs">
+        <mat-card style="max-width: 80%; margin: auto;" fxLayout="row">
+
+            <div fxFlex="10" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
+                <button mat-button (click)="upvote(reply.id!)">
+                    <mat-icon *ngIf="userUpvoted(reply)">thumb_up_alt</mat-icon>
+                    <mat-icon *ngIf="!userUpvoted(reply)">thumb_up_off_alt</mat-icon>
+                </button>
+                <div> {{netVote(reply)}} </div>
+                <button mat-button (click)="downvote(reply.id!)">
+                    <mat-icon *ngIf="userDownvoted(reply)">thumb_down_alt</mat-icon>
+                    <mat-icon *ngIf="!userDownvoted(reply)">thumb_down_off_alt</mat-icon>
+                </button>
+            </div>
+
+            <mat-divider [vertical]="true"></mat-divider>
+
+            <div fxFlex="90">
+                <div style="padding-left: 15px;" fxLayout="row">
+                    <mat-card-header>
+                        <img mat-card-avatar style="background-size: cover;" [src]="getAuthor(reply.usrId)?.photoUrl">
+                        <mat-card-title> {{getAuthor(reply.usrId)?.name ?? 'user_name'}} </mat-card-title>
+                        <mat-card-subtitle>publicado em: {{toDate(reply.created!)}}</mat-card-subtitle>
+                    </mat-card-header>
+                    <span style="flex: 1 1 auto;"></span>
+                    <button mat-icon-button [matMenuTriggerFor]="commentMenu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #commentMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="removeComment(reply)" [disabled]="!canRemoveComment(reply)">
+                            <mat-icon>delete_forever</mat-icon>
+                            <span>Apagar</span>
+                        </button>
+                    </mat-menu>
+                </div>
+
+                <mat-card-content>
+                    <quill-view [content]="reply.content" [preserveWhitespace]="true" [sanitize]="true" format="html">
+                    </quill-view>
+                </mat-card-content>
+            </div>
+
+        </mat-card>
+        <br>
+    </div>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+
+    <div style="max-width: 900px; margin: auto">
+        <h2>Novo comentário:</h2>
+        <form fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="10px"
+            [formGroup]="form" (ngSubmit)="onSubmitComment()">
+            <quill-editor #editor [styles]="{height: '200px'}" [style.display]="hideEditor ? 'none' : 'block'"
+                formControlName="editor" [sanitize]="true">
+            </quill-editor>
+            <div>
+                <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">Comentar</button>
+            </div>
+        </form>
+        <br>
+    </div>
 </div>
 
-<br>
-<mat-divider></mat-divider>
-<br>
-
-<h2>Novo comentário:</h2>
-<form>
-    <mat-form-field>
-        <textarea matInput placeholder="Descrição" rows="6" cols="100"></textarea>
-    </mat-form-field>
-</form>
+<div fxLayoutAlign="center center">
+    <mat-spinner *ngIf='isLoading'></mat-spinner>
+</div>

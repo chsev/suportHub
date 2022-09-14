@@ -5,10 +5,12 @@ import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/auth/services/auth.service';
 import { CompanyService } from 'src/app/company/services/company.service';
 import { Company } from 'src/app/shared/models/company.model';
+import { Profile } from 'src/app/shared/models/profile.model';
 import { User } from 'src/app/shared/models/user.model';
 import { UiService } from 'src/app/shared/services/ui.service';
 import { AccountService } from '../services/account.service';
 import { ConfirmResetComponent } from './confirm-reset/confirm-reset.component';
+import { EditPhotoComponent } from './edit-photo/edit-photo.component';
 import { EditPositionComponent } from './edit-position/edit-position.component';
 
 
@@ -20,7 +22,7 @@ import { EditPositionComponent } from './edit-position/edit-position.component';
 export class ListAccountComponent implements OnInit {
   avatarSrc = "assets/images/profile.png"; //for testing
   company: Company | undefined;
-  user: User | undefined;
+  profile: Profile | undefined;
   private userDataChangedSub!: Subscription;
   private companyDataSub!: Subscription;
   private loadingSub!: Subscription;
@@ -42,19 +44,25 @@ export class ListAccountComponent implements OnInit {
 
   ngOnInit(): void {
     this.userDataChangedSub = this.accountService.userDataChanged
-      .subscribe(
-        (userData: User) => {
-          this.user = userData;
-          this.accountForm.controls['email'].setValue(this.user.email);
-          this.evalPosition(this.user);
-          this.evalCompany(this.user);
+      .subscribe((userData: User) => {
+        if (userData) {
+          this.getProfile(userData.id!)
+          this.evalPosition(userData);
+          this.evalCompany(userData);
+          this.accountForm.controls['email'].setValue(userData.email);
         }
-      )
+      })
 
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
-
     this.accountService.fetchUserData();
+  }
+
+
+  getProfile(usrId: string) {
+    this.accountService.fetchProfile(usrId).subscribe(
+      (profile) => this.profile = profile
+    )
   }
 
 
@@ -67,6 +75,7 @@ export class ListAccountComponent implements OnInit {
       this.fetchCompanyData(user.companyId);
     }
   }
+
 
   evalPosition(user: User) {
     if (!user.position) {
@@ -95,19 +104,19 @@ export class ListAccountComponent implements OnInit {
   ngOnDestroy(): void {
     this.userDataChangedSub.unsubscribe();
     this.loadingSub.unsubscribe();
-    if(this.companyDataSub)
+    if (this.companyDataSub)
       this.companyDataSub.unsubscribe();
   }
 
 
   openResetPasswordDialog() {
     const dialogRef: MatDialogRef<ConfirmResetComponent> = this.dialog.open(ConfirmResetComponent, {
-      data: { email: this.user?.email }
+      data: { email: this.profile?.email }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log("Redefinindo senha...");
-        this.authService.sendPasswordResetEmail(this.user?.email!);
+        // console.log("Redefinindo senha...");
+        this.authService.sendPasswordResetEmail(this.profile?.email!);
       }
     })
   }
@@ -115,17 +124,19 @@ export class ListAccountComponent implements OnInit {
 
   openEditPositionDialog() {
     const dialogRef: MatDialogRef<EditPositionComponent> = this.dialog.open(EditPositionComponent, {
-      data: { position: this.user?.position }
+      data: { position: this.profile?.position }
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result != null && this.user) {
-        console.log("Alterando cargo...");
-        // this.currentUser.position = result;
-        // this.evalPosition(this.currentUser);
+      if (result != null && this.profile) {
         this.accountService.updateUserPosition(result.toString());
-        // this.accountService.fetchUserData(); //?
       }
     })
+  }
+
+  openEditPhotoDialog() {
+    const dialogRef: MatDialogRef<EditPhotoComponent> = this.dialog.open(EditPhotoComponent, {
+      data: { profile: this.profile }
+    });
   }
 
 

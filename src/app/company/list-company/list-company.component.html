@@ -23,8 +23,8 @@
 
         <ng-container matColumnDef="nMembers">
             <mat-header-cell *matHeaderCellDef mat-sort-header>Num. membros</mat-header-cell>
-            <!-- <mat-cell *matCellDef="let element">{{ element.nMembers }}</mat-cell> -->
-            <mat-cell *matCellDef="let element">0</mat-cell>
+            <mat-cell *matCellDef="let element">{{ element.nMembers ?? 0 }}</mat-cell>
+            <!-- <mat-cell *matCellDef="let element">0</mat-cell> -->
         </ng-container>
 
 

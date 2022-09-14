@@ -10,7 +10,9 @@ import { MaterialModule } from '../material/material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { FormsModule } from '@angular/forms';
-import { BottomSheetMembersOptionsTeam, ViewTeamComponent } from './view-team/view-team.component';
+import { ViewTeamComponent } from './view-team/view-team.component';
+import { BottomSheetTeamComponent } from './view-team/bottom-sheet-team/bottom-sheet-team.component';
+import { ConfirmExclusionTeamComponent } from './view-team/confirm-exclusion-team/confirm-exclusion-team.component';
 
 
 @NgModule({
@@ -20,7 +22,8 @@ import { BottomSheetMembersOptionsTeam, ViewTeamComponent } from './view-team/vi
     ListTeamComponent,
     DeleteTeamComponent,
     ViewTeamComponent,
-    BottomSheetMembersOptionsTeam
+    BottomSheetTeamComponent,
+    ConfirmExclusionTeamComponent
   ],
   imports: [
     CommonModule,

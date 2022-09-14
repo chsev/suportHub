@@ -1,8 +1,7 @@
 export interface System {
     id?: string,
     companyId: string
-    teams: string[];
+    teamId: string;
     name?: string,
-    description?: string,
-    docs?: string[]
+    description?: string
 }

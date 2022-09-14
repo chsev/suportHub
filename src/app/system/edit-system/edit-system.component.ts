@@ -37,7 +37,7 @@ export class EditSystemComponent implements OnInit {
           name: this.system.name,
           description: this.system.description,
         });
-        this.fetchTeamName(this.system.companyId, this.system.teams[0]);
+        this.fetchTeamName(this.system.companyId, this.system.teamId);
 
       })
   }

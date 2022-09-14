@@ -13,12 +13,14 @@ import { RouterModule } from '@angular/router';
 import { WelcomeCompanyComponent } from './welcome-company/welcome-company.component';
 
 import { FormsModule } from '@angular/forms';
-import { ListallCompanyComponent } from './listall-company/listall-company.component';
+// import { ListallCompanyComponent } from './listall-company/listall-company.component';
 import { JoinOpenCompanyComponent } from './list-company/joinOpen-company/joinOpen-company.component';
 import { JoinClosedCompanyComponent } from './list-company/joinClosed-company/joinClosed-company.component';
-import { BottomSheetOverviewMembersOptions, ViewCompanyComponent } from './view-company/view-company.component';
+import { ViewCompanyComponent } from './view-company/view-company.component';
 import { JoinClosedTeamComponent } from './view-company/joinClosed-team/joinClosed-team.component';
 import { JoinOpenTeamComponent } from './view-company/joinOpen-team/joinOpen-team.component';
+import { BottomSheetOverviewMembersOptions } from './view-company/bottom-sheet-members-options/bottom-sheet-members-options';
+import { ConfirmExclusionCompanyComponent } from './view-company/confirm-exclusion-company/confirm-exclusion-company.component';
 
 @NgModule({
   declarations: [
@@ -27,13 +29,14 @@ import { JoinOpenTeamComponent } from './view-company/joinOpen-team/joinOpen-tea
     ListCompanyComponent, 
     DeleteCompanyComponent, 
     WelcomeCompanyComponent, 
-    ListallCompanyComponent,
+    // ListallCompanyComponent,
     JoinOpenCompanyComponent,
     JoinClosedCompanyComponent,
     ViewCompanyComponent,
     BottomSheetOverviewMembersOptions,
     JoinClosedTeamComponent,
-    JoinOpenTeamComponent
+    JoinOpenTeamComponent,
+    ConfirmExclusionCompanyComponent
   ],
   imports: [
     CommonModule,

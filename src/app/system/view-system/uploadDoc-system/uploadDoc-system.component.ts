@@ -60,22 +60,22 @@ export class UploadDocSystemComponent {
       this.uploadTask = this.storage.upload(filePath, this.myFile);
 
       //get updates on upload percentage:
-      this.uploadTask.percentageChanges().subscribe(
-        percentageValue => this.uploadProgress = percentageValue,
-        (error) => { } //unsuccessful upload: do nothing with percentage
-      );
+      this.uploadTask.percentageChanges()
+      .subscribe({
+        next: percentageValue => this.uploadProgress = percentageValue,
+        error: () => { } //unsuccessful upload: do nothing with percentage
+      });
 
-      this.uploadTask.snapshotChanges().subscribe(
-        () => { },
-        (error) => {
+      this.uploadTask.snapshotChanges().subscribe({
+        error: (error) => {
           console.log("Unsuccessful Upload:")
           console.log(error);
           this.resetUpload();
         },
-        () => { //on successful upload:
+        complete: () => { //on successful upload:
           this.onSuccessfulUpload(fileRef, newDocId, newGroupId, ver);
         }
-      );
+      });
     }
   }
 
@@ -89,8 +89,8 @@ export class UploadDocSystemComponent {
     this.uploadComplete = true;
 
     // Get metadata properties:
-    fileRef.getMetadata().subscribe(
-      (metadata) => {
+    fileRef.getMetadata().subscribe({
+      next: (metadata) => {
         console.log(metadata); //for debuging
         let newDoc: Doc = {
           docGroupId: newGroupId,
@@ -104,7 +104,8 @@ export class UploadDocSystemComponent {
         //update firestore:
         this.docService.insert(this.companyId, this.systemId, newDocId, newDoc);
       },
-      (error) => console.log(error)
+      error: (error) => console.log(error)
+    }
     );
   }
 

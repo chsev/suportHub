@@ -5,37 +5,19 @@ import { TeamService } from '../services/team.service';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { User } from 'src/app/shared/models/user.model';
 import { AccountService } from 'src/app/account/services/account.service';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { UiService } from 'src/app/shared/services/ui.service';
 import { Router } from '@angular/router';
 import { System } from 'src/app/shared/models/system.model';
 import { SystemService } from 'src/app/system/services/system.service';
-import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Post } from 'src/app/shared/models/post.model';
-import { arrayRemove } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 import { Profile } from 'src/app/shared/models/profile.model';
-
-const mockposts: Post[] = [
-  {
-    id: 'id1', usrId: '44dvYb0VdnfyRXBdXrtED7afFAp1', title: 'Como Resolver Problema', type: 'teamPost', teamId: 'tiddalskdjlaskd',
-    created: '2022-08-08T13:56:01.442Z', liked: [], viewed: []
-  },
-
-  {
-    id: 'id2', usrId: '44dvYb0VdnfyRXBdXrtED7afFAp1', title: 'Como Identificar Problema', type: 'teamPost', teamId: 'tiddalskdjlaskd',
-    created: '2022-08-07T13:56:01.442Z', liked: [], viewed: []
-  },
-
-  {
-    id: 'id3', usrId: '44dvYb0VdnfyRXBdXrtED7afFAp1', title: 'Como Causar Problema', type: 'teamPost', teamId: 'tiddalskdjlaskd',
-    created: '2022-08-06T13:56:01.442Z', liked: [], viewed: []
-  },
-];
-
-
-export interface FlaggedUser extends User {
-  isAdmin?: boolean;
-}
+import { PostService } from 'src/app/post/services/post.service';
+import { BottomSheetTeamComponent } from './bottom-sheet-team/bottom-sheet-team.component';
+import { ConfirmExclusionTeamComponent } from './confirm-exclusion-team/confirm-exclusion-team.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 
 @Component({
@@ -44,15 +26,22 @@ export interface FlaggedUser extends User {
   styleUrls: ['./view-team.component.css']
 })
 export class ViewTeamComponent implements OnInit {
+  companyId: string | undefined;
   team: Team | undefined;
   user: User | undefined;
   userIsAdmin = true;
   isLoading = false;
-  showTeamCardContent = false;
+  // showTeamCardContent = false;
 
+  members: Profile[] | undefined;
   displayedColumnsMembers = ['name', 'email', 'position', 'expand'];
-  dataSourceMembers = new MatTableDataSource<User>([]);
-  @ViewChild('members') membersTable: MatTable<User> | undefined;
+  dataSourceMembers = new MatTableDataSource<Profile>([]);
+  @ViewChild('membersTable') membersTable: MatTable<Profile> | undefined;
+
+  waitingApproval: Profile[] | undefined;
+  waitingAppColumns: string[] = ['name', 'email', 'expand'];
+  dataSourceWaitingApp = new MatTableDataSource<Profile>([]);
+  @ViewChild('waitingAppTable') waitingAppTable: MatTable<Profile> | undefined;
 
   displayedColumnsSystems = ['name', 'description', 'action'];
   dataSourceSystems = new MatTableDataSource<System>([]);
@@ -66,6 +55,9 @@ export class ViewTeamComponent implements OnInit {
   private loadingSub: Subscription | undefined;
   private userDataChangedSub: Subscription | undefined;
 
+  private waitingApprovalSub: Subscription | undefined;
+  // private membersSub: Subscription | undefined;
+
   constructor(
     private uiService: UiService,
     private router: Router,
@@ -73,8 +65,9 @@ export class ViewTeamComponent implements OnInit {
     private teamService: TeamService,
     private accountService: AccountService,
     private systemService: SystemService,
+    private postService: PostService,
     private _bottomSheet: MatBottomSheet,
-    // private storage: AngularFireStorage,
+    private dialog: MatDialog
   ) { }
 
 
@@ -83,9 +76,10 @@ export class ViewTeamComponent implements OnInit {
       .subscribe(isLoading => this.isLoading = isLoading);
 
     let state: any = this.location.getState();
+    this.companyId = state.companyId;
     this.getUser();
     this.getTeamData(state);
-    this.getPosts();
+    this.getPosts(state);
   }
 
 
@@ -97,76 +91,113 @@ export class ViewTeamComponent implements OnInit {
   }
 
 
-  getPosts() {
-    this.posts = mockposts;
-
-    let authorsIds = [...new Set( this.posts.map(e => e.usrId) )]
-    this.accountService.fetchProfileList(authorsIds)
-      .subscribe( (profiles) => {
-        this.authors = profiles;
-    })
-  }
-
-  getAuthor(id: string): Profile | undefined {
-    return this.authors.find(e => e.id == id);
-  }
-
-
   private getTeamData(state: any) {
-    this.teamSub = this.teamService.fetchTeamDoc(state.companyId, state.teamId)
+    this.teamSub = this.teamService.fetchTeam(state.companyId, state.teamId)
       .subscribe((teamData: Team) => {
         this.team = teamData;
-        if (this.team.members) {
-          this.getMembersData(this.team.members);
-        }
-        if (this.team.systems) {
-          this.getSystemsData(this.team.systems);
-        }
+        // this.team.administrators = [];
+        this.getMembersData(this.team.members ?? []);
+        this.getSystemsData(this.team.systems ?? []);
+        this.getWaitingApproval(this.team.waitingApproval ?? []);
       });
   }
 
 
   private getUser() {
     this.userDataChangedSub = this.accountService.userDataChanged
-      .subscribe((userData: User) => {
-        this.user = userData;
-      });
+      .subscribe(
+        (userData: User) => this.user = userData
+      );
     this.accountService.fetchUserData();
   }
 
 
   private getMembersData(membersIds: string[]): void {
-    this.membersSub = this.accountService.fetchUserDocList(membersIds)
+    this.membersSub = this.accountService.fetchProfileList(membersIds)
       .subscribe((usersList) => {
         if (usersList) {
-          this.dataSourceMembers.data = usersList.map(usr => this.toUserFlaged(usr));
+          this.members = usersList;
+          this.dataSourceMembers.data = usersList;
           this.membersTable!.renderRows();
         }
       });
   }
+
+
+  isTeamAdmin(usrId: string): boolean {
+    if (this.team?.administrators?.includes(usrId)) {
+      return true;
+    }
+    return false;
+  }
+
 
   private getSystemsData(systemsIds: string[]): void {
     this.systemService.fetchSystemDocList(this.team?.companyId!, systemsIds)
       .subscribe((systemsList) => {
         this.dataSourceSystems.data = systemsList;
         this.systemsTable?.renderRows();
-      })
+      });
+  }
+
+  getPosts(state: any) {
+    this.postService.fetchTeamPosts(state.companyId, state.teamId)
+      .subscribe( posts => {
+        this.posts = posts;
+        // this.posts.push(...mockposts); //add mocks
+
+        let authorsIds = [...new Set( this.posts.map(e => e.usrId) )]; //remove duplicates
+        this.getAuthors(authorsIds);
+      });
+  }
+
+  
+  private getAuthors(authorsIds: string[]) {
+    this.accountService.fetchProfileList(authorsIds)
+      .subscribe((profiles) => {
+        this.authors = profiles;
+      });
+  }
+
+  // private toUserFlaged(user: User): FlaggedUser {
+  //   let adminFlag: boolean = this.team?.administrators?.includes(user.id!) ? true : false;
+  //   return { ...user, isAdmin: adminFlag };
+  // }
+
+
+  //==================
+  //   this Team:
+  //==================
+  canEdit(): boolean{
+    if(this.user?.id){
+      return this.team?.administrators?.includes(this.user.id) ?? false;
+    }
+    return false;
   }
 
 
-  onEdit() {
+  onEdit() { //edit this team
     if (this.team) {
       this.router.navigate(['team/edit'], { state: { companyId: this.team.companyId, teamId: this.team.id } });
     }
   }
 
+  onDelete( ){
+    const dialogRef: MatDialogRef<ConfirmExclusionTeamComponent> = this.dialog.open(ConfirmExclusionTeamComponent, {
+      data: { team: this.team }
+    });
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer) {
+        console.log("Excluir!");
+        // this.teamService.remove(this.companyId!, this.team?.id!);
+      }
+    });
+}
 
-  private toUserFlaged(user: User): FlaggedUser {
-    let adminFlag: boolean = this.team?.administrators?.includes(user.id!) ? true : false;
-    return { ...user, isAdmin: adminFlag };
-  }
 
-
+  //==================
+  //   System:
+  //==================
   onAddSystem() {
     this.router.navigate(['system/new'], { state: { teamId: this.team?.id, companyId: this.team?.companyId } });
   }
@@ -178,72 +209,120 @@ export class ViewTeamComponent implements OnInit {
   }
 
 
+  //==================
+  //   Members:
+  //==================
   openBottomSheet(userId: string): void {
-    let usr = this.dataSourceMembers.data.find(e => e.id == userId);
-    this._bottomSheet.open(BottomSheetMembersOptionsTeam, {
-      data: { name: usr?.name, email: usr?.email, isAdmin: true }
+    let prfl = this.dataSourceMembers.data.find(e => e.id == userId);
+    this._bottomSheet.open(BottomSheetTeamComponent, {
+      data: {      
+        companyId: this.companyId, 
+        teamId: this.team?.id!,
+        profile: prfl, 
+        isAdmin: this.isTeamAdmin(userId), 
+        curUser: this.user,
+        curIsAdmin: this.isTeamAdmin(this.user?.id!)
+      }
     });
   }
 
-
-  toDate(timestamp: string) {
-    return timestamp.substring(0, 19).replace('T', ' ');
+  private getWaitingApproval(ids: string[]) {
+    this.waitingApprovalSub?.unsubscribe();
+    this.waitingApprovalSub = this.accountService.fetchProfileList(ids)
+      .subscribe((profilesList: Profile[]) => {
+          this.waitingApproval = profilesList;
+          this.dataSourceWaitingApp.data = profilesList;
+          this.waitingAppTable!.renderRows();
+      });
   }
 
 
-  toggleLike(postId: string) {
-    let postIndex = this.posts.findIndex(e => e.id == postId);
-    if (postIndex != -1) {
-      if (this.posts[postIndex].liked.includes(this.user?.id!)) {
-        this.removeLike(postIndex);
-        return;
-      }
-      this.addLike(postIndex);
+  approveMember(usrId: string) {
+    let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
+    if (this.companyId &&  this.team && i>-1) {
+      this.dataSourceWaitingApp.data.splice(i, 1);
+      this.waitingAppTable!.renderRows();
+      this.teamService.acceptMember(this.companyId, this.team.id!, usrId);
     }
   }
 
-  private addLike(postIndex: number): void {
-    this.posts[postIndex].liked.push(this.user?.id!);
+
+  rejectMember(usrId: string) {
+    let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
+    if (this.companyId &&  this.team  && i>-1) {
+      this.dataSourceWaitingApp.data.splice(i, 1);
+      this.waitingAppTable!.renderRows();
+      this.teamService.rejectMember(this.companyId, this.team.id!, usrId);
+    }
   }
 
-  private removeLike(postIndex: number) {
-    let i = this.posts[postIndex].liked.indexOf(this.user?.id!);
-    if (i > -1) {
-      this.posts[postIndex].liked.splice(i, 1);
+  exitTeam(){
+    if (this.companyId && this.team && this.user) {
+      this.teamService.removeMember(this.companyId, this.team.id!, this.user.id!);
+      this.router.navigate(['company/view']);
     }
+  }
+
+
+  //==================
+  //   Posts:
+  //==================
+  toDate(timestamp: Timestamp) {
+    return timestamp.toDate().toLocaleString('pt-br');
+  }
+
+
+  getAuthor(id: string): Profile | undefined {
+    return this.authors.find(e => e.id == id);
+  }
+
+
+  toggleLike(postId: string){
+    this.postService.toggleLike(this.companyId!, postId, this.user?.id!);
   }
 
 
   userViewed(postId: string): boolean {
-    let i = this.posts.findIndex(e => e.id == postId);
-    if (i > -1 && this.posts[i].viewed.includes(this.user?.id!)) {
-      return true;
-    }
+    // let i = this.posts.findIndex(e => e.id == postId);
+    // if (i > -1 && this.posts[i].viewed?.includes(this.user?.id!)) {
+    //   return true;
+    // }
     return false;
   }
 
 
   viewPost(postId: string) {
-    this.router.navigate(['post/view']);
+    this.router.navigate(['post/view', postId]);
   }
 
-}
 
-
-
-
-@Component({
-  selector: 'bottom-sheet-members-options-team',
-  templateUrl: 'bottom-sheet-members-options-team.html',
-})
-export class BottomSheetMembersOptionsTeam {
-  constructor(
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    private _bottomSheetRef: MatBottomSheetRef<BottomSheetMembersOptionsTeam>
-  ) { }
-
-  openLink(event: MouseEvent): void {
-    this._bottomSheetRef.dismiss();
-    event.preventDefault();
+  onAddPost(){
+    // console.log("newpost acionado!");
+    this.router.navigate(['post/new'], { 
+      state: { 
+        teamId: this.team!.id, 
+        companyId: this.team!.companyId, 
+        usrId: this.user!.id,
+        type: 'teamPost'
+      } });;
   }
 }
+
+
+
+
+// @Component({
+//   selector: 'bottom-sheet-members-options-team',
+//   templateUrl: 'bottom-sheet-members-options-team.html',
+// })
+// export class BottomSheetMembersOptionsTeam {
+//   constructor(
+//     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
+//     private _bottomSheetRef: MatBottomSheetRef<BottomSheetMembersOptionsTeam>
+//   ) { }
+
+//   openLink(event: MouseEvent): void {
+//     this._bottomSheetRef.dismiss();
+//     event.preventDefault();
+//   }
+// }

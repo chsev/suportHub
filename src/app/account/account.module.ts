@@ -10,13 +10,15 @@ import { AccountService } from './services/account.service';
 import { ConfirmResetComponent } from './list-account/confirm-reset/confirm-reset.component';
 import { EditPositionComponent } from './list-account/edit-position/edit-position.component';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { EditPhotoComponent } from './list-account/edit-photo/edit-photo.component';
 
 
 @NgModule({
     declarations: [
         ListAccountComponent,
         ConfirmResetComponent,
-        EditPositionComponent
+        EditPositionComponent,
+        EditPhotoComponent
     ],
     imports: [
         CommonModule,

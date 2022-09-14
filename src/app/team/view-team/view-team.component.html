@@ -5,22 +5,35 @@
             <mat-card-subtitle>{{team.description}}</mat-card-subtitle>
         </mat-card-header>
         <span style="flex: 1 1 auto;"></span>
-        <button mat-icon-button (click)="showTeamCardContent = !showTeamCardContent">
+        <!-- <button mat-icon-button (click)="showTeamCardContent = !showTeamCardContent">
             <mat-icon> {{showTeamCardContent ? 'expand_less' : 'expand_more'}} </mat-icon>
-        </button>
+        </button> -->
+        <button mat-icon-button [matMenuTriggerFor]="companyMenu">
+            <mat-icon> more_vert </mat-icon>
+          </button>
+      
+          <mat-menu #companyMenu="matMenu" xPosition="before">
+            <button *ngIf="isTeamAdmin(user?.id!)" mat-menu-item (click)="onEdit()">
+                <mat-icon>edit</mat-icon>
+                <span>Editar</span>
+            </button>
+            <button *ngIf="isTeamAdmin(user?.id!)" mat-menu-item (click)="onDelete()">
+                <mat-icon>delete_forever</mat-icon>
+                <span>Excluir</span>
+            </button>
+            <button mat-menu-item (click)="exitTeam()">
+              <mat-icon>door_back</mat-icon>
+              <span>Deixar equipe</span>
+          </button>
+        </mat-menu>
     </div>
 
-    <mat-card-actions *ngIf="showTeamCardContent" align="end">
-        <button mat-button [disabled]="!userIsAdmin" (click)="onEdit()">
+    <!-- <mat-card-actions *ngIf="showTeamCardContent" align="end">
+        <button mat-button [disabled]="!canEdit()" (click)="onEdit()">
             <mat-icon>edit</mat-icon>
-            <span>Editar</span>
+            <span>&nbsp; Editar</span>
         </button>
-
-        <button mat-button [disabled]="userIsAdmin">
-            <mat-icon>blur_on</mat-icon>
-            <span>Excluir</span>
-        </button>
-    </mat-card-actions>
+    </mat-card-actions> -->
 
 </mat-card>
 
@@ -30,9 +43,9 @@
 
         <div style="width: 90%; padding: 5px;" fxLayout="row" fxLayoutAlign="start center">
             <h2 style="margin: 0%;">Membros da Equipe ({{dataSourceMembers.data.length}})</h2>
-          </div>
+        </div>
 
-        <table style="width: 100%" #members mat-table [dataSource]="dataSourceMembers" class="mat-elevation-z8">
+        <table style="width: 100%" #membersTable mat-table [dataSource]="dataSourceMembers" class="mat-elevation-z8">
 
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Nome </th>
@@ -40,12 +53,11 @@
                     <div fxLayout="row" fxFlexAlign="start center">
                         <mat-list dense>
                             <mat-list-item>
-                                <img matListAvatar src='https://material.angular.io/assets/img/examples/shiba1.jpg'
-                                    alt="...">
+                                <img matListAvatar [src]="element.photoUrl" alt="...">
                             </mat-list-item>
                         </mat-list>
                         <span style="padding: 0px; margin-top: auto; margin-bottom: auto">{{element.name}} </span>
-                        <mat-icon style="padding: 0px; margin-top: auto; margin-bottom: auto" *ngIf="element.isAdmin"
+                        <mat-icon style="padding: 0px; margin-top: auto; margin-bottom: auto" *ngIf="isTeamAdmin(element.id)"
                             matTooltip="Administrador do Grupo">assignment_ind</mat-icon>
                     </div>
                 </td>
@@ -73,6 +85,57 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumnsMembers"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumnsMembers;"></tr>
         </table>
+        <div fxLayoutAlign="center center" *ngIf='!members'>
+            <mat-spinner></mat-spinner>
+        </div>
+        <br>
+        <div style="width: 90%; padding: 5px;" fxLayout="row" fxLayoutAlign="start center">
+            <h2 style="margin: 0%;">Aguardando Aprovação ({{dataSourceWaitingApp.data.length}})</h2>
+        </div>
+
+        <table mat-table style="width: 100%" #waitingAppTable [dataSource]="dataSourceWaitingApp" class="mat-elevation-z8">
+
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Nome </th>
+                <td mat-cell *matCellDef="let element">
+                    <div fxLayout="row" fxFlexAlign="start center">
+                        <mat-list dense>
+                            <mat-list-item>
+                                <img matListAvatar [src]='element.photoUrl'>
+                            </mat-list-item>
+                        </mat-list>
+                        <span style="padding: 0px; margin-top: auto; margin-bottom: auto">{{element.name}} </span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef> E-mail </th>
+                <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-raised-button (click)="approveMember(element.id)">
+                        <mat-icon>check</mat-icon>
+                        <span>Aceitar</span>
+                    </button>
+                    <span>&nbsp;</span>
+                    <button mat-raised-button (click)="rejectMember(element.id)">
+                        <mat-icon>clear</mat-icon>
+                        <span>Rejeitar</span>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="waitingAppColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: waitingAppColumns;"></tr>
+        </table>
+        <div fxLayoutAlign="center center" *ngIf='!waitingApproval'>
+            <mat-spinner></mat-spinner>
+        </div>
+        <br>
 
     </mat-tab>
 
@@ -117,14 +180,14 @@
         <div style="width: 90%; padding: 5px;" fxLayout="row" fxLayoutAlign="start center">
             <h2 style="margin: 0%;">Posts desta Equipe ({{posts.length}})</h2>
             <span style="flex: 1 1 auto;"></span>
-            <button mat-raised-button>
+            <button mat-raised-button (click)="onAddPost()">
                 <mat-icon>add</mat-icon>
                 <span>Criar Post</span>
             </button>
         </div>
         <br>
         <div *ngFor="let post of posts">
-            <mat-card class="post-card" >
+            <mat-card class="post-card">
 
                 <div fxLayout="row" fxLayoutAlign="start center" (click)="viewPost(post.id!)">
                     <h1>{{post.title}}</h1>
@@ -137,8 +200,13 @@
                 <mat-card-header>
                     <img mat-card-avatar class="avatar-image" [src]="getAuthor(post.usrId)?.photoUrl">
                     <mat-card-title> {{getAuthor(post.usrId)?.name ?? 'user_name'}} </mat-card-title>
-                    <mat-card-subtitle>publicado em: {{toDate(post.created)}}</mat-card-subtitle>
+                    <mat-card-subtitle>publicado em: {{toDate(post.created!)}}</mat-card-subtitle>
                 </mat-card-header>
+                <mat-card-content>
+                    <mat-chip-list>
+                        <mat-chip *ngFor="let tag of post.tags">{{tag}}</mat-chip>
+                    </mat-chip-list>
+                </mat-card-content>
                 <mat-card-actions align="end">
                     <button mat-button (click)="toggleLike(post.id!)">
                         <mat-icon *ngIf="post.liked.length > 0">thumb_up_alt</mat-icon>
@@ -147,7 +215,7 @@
                     </button>
                     <button mat-button [disabled]="userViewed(post.id!)">
                         <mat-icon>visibility</mat-icon>
-                        <span>&nbsp; {{post.viewed.length}}</span>
+                        <span>&nbsp; {{post.viewed}}</span>
                     </button>
                 </mat-card-actions>
             </mat-card>

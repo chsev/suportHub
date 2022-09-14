@@ -2,3 +2,7 @@
     display: inline-block;
     padding-left: 6px;
 }
+
+.avatar-image {
+    background-size: cover;
+  }

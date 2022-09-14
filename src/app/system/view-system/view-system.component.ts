@@ -71,11 +71,11 @@ export class ViewSystemComponent implements OnInit {
       .fetchSystemDoc(state.companyId, state.systemId).subscribe(
         (data: System) => {
           this.system = data;
-          this.getDocumentsData(this.system.docs? this.system.docs : [])
+          this.getDocumentsData();
         });
   }
 
-  private getDocumentsData(docsIds: string[]): void {
+  private getDocumentsData(): void {
     this.docService.fetchAllDocumentsOfSystem(this.system?.companyId!, this.system?.id!)
     .subscribe((docsList)=>{
       this.documents = docsList;

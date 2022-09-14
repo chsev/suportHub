@@ -1,7 +1,8 @@
 <mat-card >
-    <mat-card-header>
-        <mat-card-title>Titulo</mat-card-title>
-        <mat-card-subtitle>subtitulo</mat-card-subtitle>
+    <mat-card-header *ngIf="profile">
+        <img mat-card-avatar class="avatar-image" [src]="profile.photoUrl">
+        <mat-card-title>{{profile.name}}</mat-card-title>
+        <mat-card-subtitle>{{profile.position ?? ''}}</mat-card-subtitle>
     </mat-card-header>
 </mat-card>
 
@@ -19,7 +20,7 @@
 
     <a *ngIf="isAuth" mat-list-item routerLink="/company" (click)="onClose()">
         <mat-icon>business</mat-icon>
-        <span class="navigation-caption">Empresas</span>
+        <span class="navigation-caption">Empresa</span>
     </a>
 
     <a *ngIf="isAuth" mat-list-item routerLink="/team" (click)="onClose()">
@@ -39,7 +40,7 @@
     
     <mat-divider *ngIf="isAuth"></mat-divider>
 
-    <a *ngIf="isAuth" mat-list-item routerLink="/company/listall" (click)="onClose()">
+    <a *ngIf="isAuth" mat-list-item (click)="onClose()">
         <mat-icon>settings</mat-icon>
         <span class="navigation-caption">Configurações</span>
     </a>

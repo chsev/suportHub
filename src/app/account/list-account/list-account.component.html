@@ -1,13 +1,30 @@
 <div fxFlex fxLayout="column" fxLayoutAlign="center center">
     <h1>Minha Conta</h1>
 
-    <mat-card *ngIf="user" class="account-card">
-        <mat-card-header>
-            <img mat-card-avatar class="example-header-image" [src]="avatarSrc">
-            <mat-card-title>{{user.name}}</mat-card-title>
-            <mat-card-subtitle *ngIf="user.position">{{user.position}}</mat-card-subtitle>
-        </mat-card-header>
+    <mat-card *ngIf="profile" class="account-card">
+        <div fxLayout="row">
+            <mat-card-header>
+                <img mat-card-avatar class="example-header-image" [src]="profile.photoUrl">
+                <mat-card-title>{{profile.name}}</mat-card-title>
+                <mat-card-subtitle *ngIf="profile.position">{{profile.position}}</mat-card-subtitle>
+            </mat-card-header>
+            <span style="flex: 1 1 auto;"></span>
+            <button mat-icon-button [matMenuTriggerFor]="userMenu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
 
+            <mat-menu #userMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="openEditPhotoDialog()">
+                    <mat-icon>add_a_photo</mat-icon>
+                    <span>Alterar foto</span>
+                </button>
+                <button mat-menu-item (click)="openResetPasswordDialog()">
+                    <mat-icon>key</mat-icon>
+                    <span>Redefinir senha</span>
+                </button>
+            </mat-menu>
+        </div>
+            
         <p></p>
         <mat-divider inset></mat-divider>
         <p></p>
@@ -38,18 +55,13 @@
 
         <mat-divider inset></mat-divider>
 
-        <!-- <mat-card-content fxLayoutAlign="end center"> 
-
-        </mat-card-content> -->
-
         <mat-card-actions align="end">
-            <button mat-button (click)="openResetPasswordDialog()">Redefinir senha</button>
             <button mat-button (click)="onLogout()">Logout</button>
         </mat-card-actions>
     </mat-card>
 
     <div fxLayoutAlign="center center">
-        <mat-spinner *ngIf='isLoading'></mat-spinner>
+        <mat-spinner *ngIf='isLoading || !profile'></mat-spinner>
     </div>
 
 </div>

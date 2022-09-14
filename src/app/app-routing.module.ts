@@ -7,26 +7,26 @@ import { AuthRoutingModule } from './auth/auth-routing.module';
 import { CompanyRoutingModule } from './company/company-routing.module';
 import { TeamRoutingModule } from './team/team-routing.module';
 import { SystemRoutingModule } from './system/system-routing.module';
-import { UserRoutingModule } from './user/user-routing.module';
 import { AccountRoutingModule } from './account/account-routing.module';
 import { PostRoutingModule } from './post/post-routing.module';
 
 const routes: Routes = [
   { path: '', redirectTo: 'welcome', pathMatch: 'full' },
-  { path: 'welcome', component: WelcomeComponent  },
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard]}
+  { path: 'welcome', component: WelcomeComponent, },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
+  { path: '**', redirectTo: 'welcome'},
+
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes),
     AuthRoutingModule,
     CompanyRoutingModule,
     TeamRoutingModule,
     SystemRoutingModule,
-    UserRoutingModule,
     AccountRoutingModule,
     PostRoutingModule,
+    RouterModule.forRoot(routes),
   ],
   exports: [RouterModule],
   providers: [AuthGuard]

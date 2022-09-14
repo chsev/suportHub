@@ -11,6 +11,8 @@ import { JoinOpenCompanyComponent } from './joinOpen-company/joinOpen-company.co
 import { JoinClosedCompanyComponent } from './joinClosed-company/joinClosed-company.component';
 import { AccountService } from 'src/app/account/services/account.service';
 import { User } from 'src/app/shared/models/user.model';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-list-company',
@@ -18,15 +20,16 @@ import { User } from 'src/app/shared/models/user.model';
   styleUrls: ['./list-company.component.css']
 })
 export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
+  user: User | undefined;
+  isLoading = false;
+
   displayedColumns = ['name', 'segment', 'nMembers', 'isOpen', 'button'];
   dataSource = new MatTableDataSource<Company>();
+
   private companyChangedSub: Subscription | undefined;
   private userDataChangedSub: Subscription | undefined;
-  user: User | undefined;
-
-  isLoading = false;
   private loadingSub: Subscription | undefined;
-
+  
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -35,21 +38,29 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
     private companyService: CompanyService,
     private uiService: UiService,
     private accountService: AccountService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) { }
 
+  
   ngOnInit(): void {
     this.loadingSub = this.uiService.loadingStateChanged
     .subscribe(isLoading => this.isLoading = isLoading);
     
     this.userDataChangedSub = this.accountService.userDataChanged
-    .subscribe( (userData: User) => this.user = userData);
+    .subscribe( (userData: User) => {
+      this.user = userData;
+      // if(userData.companyId || userData.pendingApproval){
+      //   this.router.navigate(['company/welcome'])
+      // }
+    });
 
-    this.companyChangedSub = this.companyService.companyArrayChanged
+    // this.companyChangedSub = 
+    this.companyService.getPublicCompanies()
       .subscribe((companies: Company[]) => this.dataSource.data = companies);
     
     this.accountService.fetchUserData();
-    this.companyService.fetchCompanies();
+    // this.companyService.fetchCompanies();
   }
 
   
@@ -65,6 +76,7 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
     this.userDataChangedSub?.unsubscribe();
   }
 
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -74,70 +86,42 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+
   join(id: string){
     let company = this.dataSource.data.find(c => c.id == id);
     if(company){
-      if(company.isOpen){
-        this.joinOpen(company);
-      }
-      else{
-        this.joinClosed(company);
-      }
+      company.isOpen ? this.joinOpen(company) : this.joinClosed(company);
     }
   }
+
 
   joinOpen(company: Company){
     const dialogRef: MatDialogRef<JoinOpenCompanyComponent> = this.dialog.open(JoinOpenCompanyComponent, {
       data: { name: company.name }
     });
-
     dialogRef.afterClosed().subscribe(answer => {
       if (answer && this.user) {
-        console.log("Aceitou Open");
-        this.accountService.updateCompany(company.id!);
-        this.companyService.addMember(company.id!, this.user.id!)
+        this.companyService.addMember(company.id!, this.user.id!);
+        this.router.navigate(['company/welcome']);
       }
     });
   }
+
 
   joinClosed(company: Company){
     const dialogRef: MatDialogRef<JoinClosedCompanyComponent> = this.dialog.open(JoinClosedCompanyComponent, {
       data: { name: company.name }
     });
-
     dialogRef.afterClosed().subscribe(answer => {
       if (answer && this.user) {
-        console.log("Aceitou Closed");
-        this.accountService.updateCompany(company.id!);
-        this.companyService.addMember(company.id!, this.user.id!)
+        this.companyService.requestApproval(company.id!, this.user.id!);
+        this.router.navigate(['company/welcome']);
       }
     });
   }
 
 
-  // edit(id: string) {
-  //   this.companyService.editingCompanyId = id;
-  //   this.router.navigate(['company/edit']);
-  // }
-
-
-  // new() {
-  //   this.router.navigate(["company/new"])
-  // }
-
-
-  // delete(passedId: string, passedName: string) {
-  //   const dialogRef: MatDialogRef<DeleteCompanyComponent> = this.dialog.open(DeleteCompanyComponent, {
-  //     data: {
-  //       name: passedName
-  //     }
-  //   });
-  //   dialogRef.afterClosed().subscribe(answer => {
-  //     if (answer) {
-  //       this.companyService.remove(passedId);
-  //     }
-  //   });
-  // }
+  
 
 
 

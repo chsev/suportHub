@@ -1,4 +1,4 @@
-<h1 fxLayoutAlign="center">Novo Post</h1>
+<h1 fxLayoutAlign="center">Editar Post</h1>
 
 <div style="max-width: 900px; margin: auto">
   <form mat-form fxLayout="column" fxLayoutAlign="start center" [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -32,10 +32,9 @@
 
     <br>
     <div fxLayout="row" fxLayoutGap="10px">
-      <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">Publicar</button>
-      <button type="button" mat-raised-button color="warn" (click)="goBackToTeam()">Cancelar</button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">Salvar</button>
+      <button type="button" mat-raised-button color="warn" (click)="goBack()">Cancelar</button>
     </div>
   </form>
 </div>
 <br>
-<!-- <div>{{ form.get('editor')?.value }}</div> -->

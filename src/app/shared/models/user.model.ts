@@ -5,4 +5,5 @@ export interface User {
     position?: string,
     companyId?: string
     profileImg?: string,
+    pendingApproval?: string,
 }

@@ -19,7 +19,7 @@ export class EditCompanyComponent implements OnInit {
   private loadingSub!: Subscription;
   private companySub: Subscription | undefined;
   private userSub: Subscription | undefined;
-  companyId!: string | null;
+  companyId: string | undefined;
   company: Company | undefined;
   administrators: UntypedFormControl[] = [];//  = new UntypedFormControl('');
 
@@ -43,36 +43,37 @@ export class EditCompanyComponent implements OnInit {
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
 
-    let idPayload: any = this.location.getState();
-    if (idPayload.id) {
-      this.fetchCompany(idPayload.id);
+    let state: any = this.location.getState();
+    this.companyId = state.id;
+    if (this.companyId) {
+      this.fetchCompany(this.companyId);
+      this.fetchAdministrators(this.companyId);
     }
   }
 
 
   private fetchCompany(id: string) {
     this.companySub = this.companyService.fetchCompanyDoc(id)
-      .subscribe((payload: Company) => {
-        if (payload) {
-          this.company = payload;
+      .subscribe((companyDoc: Company) => {
+          this.company = companyDoc;
           this.companyForm.setValue({
-            name: payload.name,
-            segment: payload.segment,
-            description: payload.description,
-            isOpen: payload.isOpen,
-            isPublic: payload.isPublic,
-          });
-          this.fetchAdmin(payload.administrators!);
-        }
+            name: companyDoc.name,
+            segment: companyDoc.segment,
+            description: companyDoc.description,
+            isOpen: companyDoc.isOpen,
+            isPublic: companyDoc.isPublic,
+          }); 
       });
   }
 
-
-  private fetchAdmin(uids: string[]) {
-    this.userSub = this.accountService.fetchUserDocList(uids)
-      .subscribe(data => {
-        this.administrators = data
-          .map( usr => new UntypedFormControl(`${usr.name} (${usr.email})`));
+  
+  private fetchAdministrators(id: string){
+      this.companyService.fetchCompanyData(id)
+      .subscribe( (data) => {
+        this.accountService.fetchUserDocList(data.administrators ?? [])
+        .subscribe( (usrList) =>{
+          this.administrators = usrList.map( usr => new UntypedFormControl(`${usr.name} (${usr.email})`));
+        } )
       })
   }
 

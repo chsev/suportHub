@@ -44,7 +44,7 @@ export class CreateSystemComponent implements OnInit {
   }
 
   async onSubmit(){
-    let newid = await this.systemService.insert({...this.systemForm.value, teams: [this.teamId], companyId: this.companyId})
+    let newid = await this.systemService.insert({...this.systemForm.value, teamId: this.teamId, companyId: this.companyId})
     if(newid){
       this.teamService.addSystem(this.companyId!, this.teamId!, newid);
     }

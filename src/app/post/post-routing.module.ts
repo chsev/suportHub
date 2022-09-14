@@ -3,12 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ViewPostComponent } from './view-post/view-post.component';
 import { CreatePostComponent } from './create-post/create-post.component';
+import { AuthGuard } from '../auth/auth.guard';
+import { EditPostComponent } from './edit-post/edit-post.component';
 
 
 const routes: Routes = [
-    { path: 'post', redirectTo: 'post/create' }, 
-    { path: 'post/view', component: ViewPostComponent},
-    { path: 'post/create', component: CreatePostComponent},
+    { path: 'post', redirectTo: '' }, 
+    { path: 'post/view/:id', component: ViewPostComponent},
+    { path: 'post/new', component: CreatePostComponent},
+    { path: 'post/edit', component: EditPostComponent, canActivate: [AuthGuard]},
 ]
 
 @NgModule({

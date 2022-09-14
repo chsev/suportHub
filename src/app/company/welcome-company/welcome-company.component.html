@@ -1,54 +1,79 @@
-<div *ngIf='!isLoading' fxLayout="column" fxLayoutAlign="center center">
-    <mat-card fxFlex fxLayoutGap="8px" fxLayout="row" fxLayoutAlign="center center">
-        <mat-icon>info</mat-icon>
-        <div>Parece que você não se juntou à nenhuma empresa ainda</div>
+<div *ngIf='user' fxLayout="column" fxLayoutAlign="center center">
+
+    <mat-card *ngIf="user?.pendingApproval" style="max-width: 430px;">
+        <mat-card-content fxLayout="row" fxLayoutAlign="start center">
+            <div fxFlex="40px">
+                <mat-icon>info</mat-icon>
+            </div>
+            <div fxFlex>
+                <span>Você solicitou permissão para ingressar no grupo privado da empresa
+                    <strong>{{pendingCompany?.name}}</strong>. A solicitação ainda está pendente. </span>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-button (click)="onCancelRequest()">
+                <span>Cancelar solicitação</span>
+            </button>
+        </mat-card-actions>
     </mat-card>
 
-    <br><br>
+    <div *ngIf="!user?.pendingApproval && !user?.companyId">
+        <mat-card fxLayoutGap="8px" fxLayout="row" fxLayoutAlign="center center">
+            <mat-icon>info</mat-icon>
+            <span>Parece que você não se juntou à nenhuma empresa ainda</span>
+        </mat-card>
 
-    <div fxHide.gt-xs>
-        <button mat-raised-button color="primary" (click)="onCreateCompany()">
-            <mat-icon>domain_add</mat-icon>
-            <span style="padding-left: 10px;">Novo Grupo de Empresa</span>
-        </button>
-    </div>
+        <br><br>
 
-    <div fxHide.xs>
-        <button mat-raised-button class="big-button" color="primary" (click)="onCreateCompany()">
-            <button mat-fab color="black">
+        <div fxHide.gt-xs>
+            <button mat-raised-button color="primary" (click)="onCreateCompany()">
                 <mat-icon>domain_add</mat-icon>
+                <span style="padding-left: 10px;">Novo Grupo de Empresa</span>
             </button>
-            <span style="padding-left: 10px;">Criar um novo Grupo de Empresa</span>
-        </button>
-    </div>
+        </div>
 
-    <br>
+        <div fxHide.xs>
+            <button mat-raised-button class="big-button" color="primary" (click)="onCreateCompany()">
+                <button mat-fab color="black">
+                    <mat-icon>domain_add</mat-icon>
+                </button>
+                <span style="padding-left: 10px;">Criar um novo Grupo de Empresa</span>
+            </button>
+        </div>
 
-    <div fxHide.gt-xs>
-        <button mat-raised-button color="primary" (click)="onSearchCompany()">
-            <mat-icon>travel_explore</mat-icon>
-            <span style="padding-left: 10px;">Pesquisar grupos públicos</span>
-        </button>
-    </div>
+        <br>
 
-    <div fxHide.xs>
-        <button mat-raised-button class="big-button" color="primary" (click)="onSearchCompany()">
-            <button mat-fab color="black">
+        <div fxHide.gt-xs>
+            <button mat-raised-button color="primary" (click)="onSearchCompany()">
                 <mat-icon>travel_explore</mat-icon>
+                <span style="padding-left: 10px;">Pesquisar grupos públicos</span>
             </button>
-            <span style="padding-left: 10px;">Pesquisar um Grupo para se juntar</span>
-        </button>
+        </div>
+
+        <div fxHide.xs>
+            <button mat-raised-button class="big-button" color="primary" (click)="onSearchCompany()">
+                <button mat-fab color="black">
+                    <mat-icon>travel_explore</mat-icon>
+                </button>
+                <span style="padding-left: 10px;">Pesquisar um Grupo para se juntar</span>
+            </button>
+        </div>
     </div>
 
+    <!-- debug only -->
     <br>
     <button mat-raised-button color="warn" (click)="onViewCompany()">
         <mat-icon>visibility</mat-icon>
-        <span style="padding-left: 10px;">Ver company</span>
+        <span style="padding-left: 10px;">Ver para empresa</span>
     </button>
 
-    <span>{{user?.companyId ? user?.companyId : "sem company"}}</span>
+    <!-- <span>{{user?.companyId ? user?.companyId : "sem company"}}</span> -->
 </div>
 
-<div fxLayout="column" fxLayoutAlign="center center" *ngIf='isLoading'>
-    <mat-spinner ></mat-spinner>
+<div fxLayout="column" fxLayoutAlign="center center" *ngIf='!user || isLoading'>
+    <mat-spinner></mat-spinner>
 </div>
+
+<!-- <div>
+    {{user | json}}
+</div> -->

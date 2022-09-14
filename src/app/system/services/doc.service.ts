@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+// import { map } from 'rxjs/operators';
 import { Doc } from 'src/app/shared/models/doc.model';
 import { UiService } from 'src/app/shared/services/ui.service';
 
@@ -47,24 +47,24 @@ export class DocService {
     return new Observable((observer) => {
       this.db.collection('companies').doc(companyId)
         .collection('systems').doc(systemId)
-        .collection('documents').snapshotChanges()
-        .pipe( map(actions => actions.map(
-          a => {
-            const data = a.payload.doc.data() as Doc;
-            const id = a.payload.doc.id;
-            return { ...data, id: id };
-          }
-        )))
-        .subscribe(
-          (fetchedDocs: Doc[]) => {
+        .collection<Doc>('documents').valueChanges({idField: 'id'})
+        // .pipe( map(actions => actions.map(
+        //   a => {
+        //     const data = a.payload.doc.data() as Doc;
+        //     const id = a.payload.doc.id;
+        //     return { ...data, id: id };
+        //   }
+        // )))
+        .subscribe({
+          next: (fetchedDocs: Doc[]) => {
             observer.next(fetchedDocs);
             this.uiService.loadingStateChanged.next(false);
           },
-          (error) => {
+          error: (error) => {
             observer.error(error);
             this.uiService.loadingStateChanged.next(false);
           }
-        )
+        })
     })
   }
 

@@ -4,6 +4,7 @@ export interface Team {
     description?: string,
     companyId: string,
     members?: string[],
+    waitingApproval?: string[],
     administrators?: string[],
     systems?: string[],
     isOpen?: boolean,

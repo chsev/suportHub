@@ -14,7 +14,6 @@ import { NavigationModule } from './navigation/navigation.module';
 import { CompanyModule } from './company/company.module';
 import { TeamModule } from './team/team.module';
 import { SystemModule } from './system/system.module';
-import { UserModule } from './user/user.module';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { environment } from '../environments/environment';
@@ -38,7 +37,6 @@ import { QuillModule } from 'ngx-quill';
     CompanyModule,
     TeamModule,
     SystemModule,
-    UserModule,
     WelcomeModule,
     AuthModule,
     NavigationModule,

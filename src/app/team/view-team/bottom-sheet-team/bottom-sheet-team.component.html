@@ -1,0 +1,30 @@
+<mat-nav-list>
+    
+    <mat-list-item (click)="dismiss()">
+        <img matListAvatar [src]='passedData.profile.photoUrl'>
+        <span mat-line> {{passedData.profile.name}} </span>
+        <span mat-line> {{passedData.profile.email}} </span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+
+    <mat-list-item *ngIf="passedData.curIsAdmin" [disabled]='passedData.isAdmin' (click)="makeAdmin()">
+        <mat-icon matListIcon>assignment_ind</mat-icon>
+        <span mat-line>Tornar administrador</span>
+        <span mat-line *ngIf="passedData.isAdmin">usuário já é administrador</span>
+    </mat-list-item>
+
+
+    <mat-list-item  *ngIf="passedData.curIsAdmin && self()" (click)="removeAdmin()">
+        <mat-icon matListIcon>remove</mat-icon>
+        <span mat-line>Deixar de ser administrador</span>
+    </mat-list-item>
+
+
+    <mat-list-item *ngIf="passedData.curIsAdmin && !self()" [disabled]='passedData.isAdmin' (click)="removeMember()">
+        <mat-icon matListIcon>sports_martial_arts</mat-icon>
+        <span mat-line>Kickar usuário</span>
+    </mat-list-item>
+
+
+</mat-nav-list>

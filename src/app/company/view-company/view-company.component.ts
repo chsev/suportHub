@@ -9,16 +9,15 @@ import { Team } from 'src/app/shared/models/team.model';
 import { User } from 'src/app/shared/models/user.model';
 import { CompanyService } from '../services/company.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { TeamService } from 'src/app/team/services/team.service';
 import { SystemService } from 'src/app/system/services/system.service';
 import { JoinOpenTeamComponent } from './joinOpen-team/joinOpen-team.component';
 import { JoinClosedTeamComponent } from './joinClosed-team/joinClosed-team.component';
-
-
-export interface UserFlagged extends User {
-  isAdmin?: boolean;
-}
+import { Profile } from 'src/app/shared/models/profile.model';
+import { BottomSheetOverviewMembersOptions } from './bottom-sheet-members-options/bottom-sheet-members-options';
+import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { ConfirmExclusionCompanyComponent } from './confirm-exclusion-company/confirm-exclusion-company.component';
 
 
 @Component({
@@ -28,20 +27,24 @@ export interface UserFlagged extends User {
 })
 export class ViewCompanyComponent implements OnInit {
 
-  members: UserFlagged[] = [];
+  members: Profile[] | undefined;
   membersColumns: string[] = ['name', 'email', 'position', 'expand'];
-  dataSourceMembers = new MatTableDataSource<UserFlagged>();
-  @ViewChild('members') membersTable: MatTable<UserFlagged> | undefined;
+  dataSourceMembers = new MatTableDataSource<Profile>([]);
+  @ViewChild('membersTable') membersTable: MatTable<Profile> | undefined;
+
+  waitingApproval: Profile[] | undefined;
+  waitingAppColumns: string[] = ['name', 'email', 'expand'];
+  dataSourceWaitingApp = new MatTableDataSource<Profile>([]);
+  @ViewChild('waitingApp') waitingAppTable: MatTable<Profile> | undefined;
 
   teams: Team[] = [];
   displayedColumnsTeams = ['name', 'description', 'nmembers', 'isopen', 'action'];
-  dataSourceTeams = new MatTableDataSource<Team>();
+  dataSourceTeams = new MatTableDataSource<Team>([]);
   @ViewChild('teams') teamsTable: MatTable<Team> | undefined;
-
 
   systems: System[] = [];
   displayedColumnsSystems = ['name', 'description', 'ndocs', 'action'];
-  dataSourceSystems = new MatTableDataSource<System>();
+  dataSourceSystems = new MatTableDataSource<System>([]);
   @ViewChild('systems') systemsTable: MatTable<System> | undefined;
 
   user: User | undefined;
@@ -49,10 +52,10 @@ export class ViewCompanyComponent implements OnInit {
   showCompanyCardContent = false;
   private userDataChangedSub!: Subscription;
   private teamChangedSub!: Subscription;
-
   isLoading = false;
-  userIsAdmin = false;
 
+private waitingApprovalSub: Subscription | undefined;
+private membersSub: Subscription | undefined;
 
   constructor(
     private companyService: CompanyService,
@@ -65,65 +68,196 @@ export class ViewCompanyComponent implements OnInit {
   ) { }
 
 
- 
-
-
   ngOnInit(): void {
     this.getUser();
   }
 
+
   ngOnDestroy(): void {
     if (this.userDataChangedSub) { this.userDataChangedSub.unsubscribe(); }
-    if( this.teamChangedSub){ this.teamChangedSub.unsubscribe(); }
+    if (this.teamChangedSub) { this.teamChangedSub.unsubscribe(); }
   }
 
 
   private getUser() {
-    this.userDataChangedSub = this.accountService.userDataChanged.subscribe(
-        (userData: User) => {
-          this.user = userData;
-          this.fetchCompanyData(userData.companyId);
-        }
-      );
+    this.userDataChangedSub = this.accountService.userDataChanged
+      .subscribe((userData: User) => {
+        this.user = userData;
+        this.fetchCompanyDoc(userData.companyId);
+        this.fetchCompanyData(userData.companyId);
+        this.fetchTeams(userData.companyId);
+      });
     this.accountService.fetchUserData();
   }
 
 
-  private fetchCompanyData(companyID: string | undefined) {
+
+  //=========
+  // Company
+  //=========
+  private fetchCompanyDoc(companyID: string | undefined) {
     if (companyID) {
       this.companyService.fetchCompanyDoc(companyID)
-        .subscribe((data) => {
-          if (data) {
-            this.company = data;
-            if(this.company.administrators?.includes(this.user?.id!)){
+        .subscribe((companyDoc) => {
+          if (!this.company) {
+            this.company = companyDoc;
 
-              //debug:
-              console.log('administrators:');
-              console.log(this.company.administrators);
-              console.log('user id:');
-              console.log(this.user?.id!);
-              console.log('compare:');
-              console.log(this.company.administrators?.includes(this.user?.id!));
-
-              this.userIsAdmin = true;
-            }
-            this.getMembersData();
-            this.fetchTeams(this.company.id);
+            // this.getWaitingApproval(['44dvYb0VdnfyRXBdXrtED7afFAp1']);
+            // this.getMembersData(['44dvYb0VdnfyRXBdXrtED7afFAp1', 
+            // 'HJhHgF2trIOv3UUUfJYnzlCas6w2', 'v4yisPjzS5VTrzrjl6QX6pTKdSi2']);
+          }
+          else {
+            this.company.id = companyDoc.id;
+            this.company.name = companyDoc.name;
+            this.company.description = companyDoc.description;
+            this.company.segment = companyDoc.segment;
+            this.company.nMembers = companyDoc.nMembers;
+            this.company.isPublic = companyDoc.isPublic;
+            this.company.isOpen = companyDoc.isOpen;
           }
         });
     }
   }
 
-  private fetchTeams(companyId: string | undefined){
-    if(companyId){
+  private fetchCompanyData(companyID: string | undefined) {
+    if (companyID) {
+      this.companyService.fetchCompanyData(companyID)
+        .subscribe((data) => {
+          if (!this.company) {
+            this.company = data;
+          }
+          else {
+            this.company.members = data.members;
+            this.company.administrators = data.administrators;
+            this.company.waitingApproval = data.waitingApproval;
+
+
+          }
+          this.getMembersData(data.members ?? []);
+          this.getWaitingApproval(data.waitingApproval ?? []);
+        }
+        )
+    }
+  }
+
+
+  userIsCpyAdmin(usrId: string): boolean {
+    if (this.company?.administrators?.includes(usrId)) {
+      return true;
+    }
+    return false;
+  }
+
+
+  onEdit() {
+    if (this.company?.id) {
+      this.router.navigate(['company/edit'], { state: { id: this.company.id } });
+    }
+  }
+
+  
+  onDelete( ){
+      const dialogRef: MatDialogRef<ConfirmExclusionCompanyComponent> = this.dialog.open(ConfirmExclusionCompanyComponent, {
+        data: { company: this.company }
+      });
+      dialogRef.afterClosed().subscribe(answer => {
+        if (answer) {
+          console.log("Excluir!");
+          this.companyService.remove(this.company?.id!);
+        }
+      });
+  }
+
+  exitCompany(){
+      if (this.company && this.user) {
+        this.companyService.removeMember(this.company.id!, this.user.id!);
+        this.router.navigate(['company']);
+      }
+    
+  }
+
+
+
+  //=========
+  // Members
+  //=========
+  private getMembersData(membersIds: string[]) {
+    this.membersSub?.unsubscribe();
+    this.membersSub = this.accountService.fetchProfileList(membersIds)
+      .subscribe((membersList: Profile[]) => {
+        if (membersList) {
+          this.members = membersList;
+          this.dataSourceMembers.data = membersList;
+          this.membersTable!.renderRows();
+        }
+      });
+  }
+
+
+  openBottomSheet(userId: string): void {
+    let prfl = this.members?.find(e => e.id == userId);
+    this._bottomSheet.open(BottomSheetOverviewMembersOptions, {
+      data: { 
+        companyId: this.company?.id, 
+        profile: prfl, 
+        isAdmin: this.userIsCpyAdmin(userId), 
+        curUser: this.user,
+        curIsAdmin: this.userIsCpyAdmin(this.user?.id!)
+      }
+    });
+  }
+
+
+
+  //=========
+  // Waiting for Approval list
+  //=========
+  private getWaitingApproval(ids: string[]) {
+    this.waitingApprovalSub?.unsubscribe();
+    this.waitingApprovalSub = this.accountService.fetchProfileList(ids)
+      .subscribe((profilesList: Profile[]) => {
+          this.waitingApproval = profilesList;
+          this.dataSourceWaitingApp.data = profilesList;
+          this.waitingAppTable!.renderRows();
+      });
+  }
+
+
+  approveMember(usrId: string) {
+    let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
+    if (this.company && i>-1) {
+      this.dataSourceWaitingApp.data.splice(i, 1);
+      this.waitingAppTable!.renderRows();
+      this.companyService.acceptMember(this.company.id!, usrId);
+      // this.accountService.updateUserCompany(this.company.id!, usrId);
+    }
+  }
+
+
+  rejectMember(usrId: string) {
+    let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
+    if (this.company  && i>-1) {
+      this.dataSourceWaitingApp.data.splice(i, 1);
+      this.waitingAppTable!.renderRows();
+      this.companyService.rejectMember(this.company.id!, usrId);
+    }
+  }
+
+
+
+  //=========
+  // Teams
+  //=========
+  private fetchTeams(companyId: string | undefined) {
+    if (companyId) {
       this.teamChangedSub = this.teamService.teamArrayChanged
-        .subscribe( (data: Team[]) => {
+        .subscribe((data: Team[]) => {
           this.teams = data;
           this.dataSourceTeams.data = data;
 
           //will only fetch systems linked to teams
           let allSystems: string[] = [];
-          this.teams.forEach( t => t.systems? allSystems.push(...t.systems): '' );
+          this.teams.forEach(t => t.systems ? allSystems.push(...t.systems) : '');
           this.getSystemsData(allSystems);
         })
       this.teamService.fetchTeams(companyId)
@@ -131,76 +265,50 @@ export class ViewCompanyComponent implements OnInit {
   }
 
 
-  private getMembersData() {
-    this.accountService
-      .fetchUserDocList(['44dvYb0VdnfyRXBdXrtED7afFAp1', 'HJhHgF2trIOv3UUUfJYnzlCas6w2', 'v4yisPjzS5VTrzrjl6QX6pTKdSi2'])
-      .subscribe( (mebersList: User[]) => {
-          if (mebersList) {
-            let flaggedMembers = mebersList.map(value => this.toUserFlaged(value));
-            this.members = flaggedMembers;
-            this.dataSourceMembers.data = flaggedMembers;
-            this.membersTable!.renderRows();
-          }
-      });
-  }
-
-
-  private getSystemsData(systemsIds: string[]): void {
-    this.systemService.fetchSystemDocList(this.company?.id!, systemsIds)
-    .subscribe((systemsList)=>{
-      this.systems = systemsList;
-      this.dataSourceSystems.data = systemsList;
-      this.systemsTable?.renderRows();
-    })
-  }
-
-
-
-  onViewTeam(teamId: string){
-    let t = this.teams.find( e => e.id == teamId);
-    this.router.navigate(['team/view'], {state: {teamId: t?.id, companyId: t?.companyId}});
-  }
-
-
-  onEdit() {
-    if (this.company?.id) {
-      this.router.navigate(['company/edit'], {state: {id: this.company.id}});
+  userIsTeamMember(teamId: string, usrId: string): boolean {
+    let t = this.teams.find(e => e.id === teamId);
+    if (t && t.members?.includes(usrId)) {
+      return true;
     }
+    return false;
   }
 
-  onNewTeam(){
+
+  onViewTeam(teamId: string) {
+    let t = this.teams.find(e => e.id == teamId);
+    this.router.navigate(['team/view'], { state: { teamId: t?.id, companyId: t?.companyId } });
+  }
+
+
+  onNewTeam() {
     this.router.navigate(['team/new']);
   }
 
-  joinTeam(teamId: string){
+
+  joinTeam(teamId: string) {
     let team = this.teams.find(t => t.id == teamId);
-    if(!team){
+    if (!team) {
       return;
     }
-
-    if(team.isOpen){
-      this.joinOpenTeam(team);
-    }
-    else{
-      this.joinClosedTeam(team);
-    }
+    team.isOpen ? this.joinOpenTeam(team) : this.joinClosedTeam(team);
   }
 
-  joinOpenTeam(team: Team){
+
+  private joinOpenTeam(team: Team) {
     const dialogRef: MatDialogRef<JoinOpenTeamComponent> = this.dialog.open(JoinOpenTeamComponent, {
       data: { name: team.name }
     });
 
     dialogRef.afterClosed().subscribe(answer => {
       if (answer) {
-        console.log("Aceitou Open");
-        // this.accountService.updateCompany(company.id!);
-        // this.companyService.addMember(company.id!, this.accountService.getUser()?.id!)
+        // console.log("Aceitou Open");
+        this.teamService.addMember(this.company?.id!, team.id!, this.user?.id!);
       }
     });
   }
 
-  joinClosedTeam(team: Team){
+
+  private joinClosedTeam(team: Team) {
     const dialogRef: MatDialogRef<JoinClosedTeamComponent> = this.dialog.open(JoinClosedTeamComponent, {
       data: { name: team.name }
     });
@@ -208,45 +316,32 @@ export class ViewCompanyComponent implements OnInit {
     dialogRef.afterClosed().subscribe(answer => {
       if (answer) {
         console.log("Aceitou Closed");
-        // this.accountService.updateCompany(company.id!);
-        // this.companyService.addMember(company.id!, this.accountService.getUser()?.id!)
+        this.teamService.requestApproval(this.company?.id!, team.id!, this.user?.id!);
       }
     });
   }
 
-  onViewSystem(systemId: string){
+
+
+  //=========
+  // Systems
+  //=========
+  private getSystemsData(systemsIds: string[]): void {
+    this.systemService.fetchSystemDocList(this.company?.id!, systemsIds)
+      .subscribe((systemsList) => {
+        this.systems = systemsList;
+        this.dataSourceSystems.data = systemsList;
+        this.systemsTable?.renderRows();
+      })
+  }
+
+
+  onViewSystem(systemId: string) {
     let s = this.systems.find(e => e.id == systemId);
-    this.router.navigate(['system/view'], {state: {companyId: s?.companyId, systemId: s?.id}});
+    this.router.navigate(['system/view'], { state: { companyId: s?.companyId, systemId: s?.id } });
   }
 
 
-  openBottomSheet(userId: string): void {
-    let usr = this.members.find( e => e.id == userId);
-    this._bottomSheet.open(BottomSheetOverviewMembersOptions, {
-      data: {name: usr?.name, email: usr?.email, isAdmin: usr?.isAdmin}
-    });
-  }
-
-  toUserFlaged(user: User): UserFlagged {
-    let adminFlag: boolean = this.company?.administrators?.includes(user.id!)? true : false;
-    return { ...user, isAdmin: adminFlag }
-  }
 
 }
 
-
-@Component({
-  selector: 'bottom-sheet-members-options',
-  templateUrl: 'bottom-sheet-members-options.html',
-})
-export class BottomSheetOverviewMembersOptions {
-  constructor(
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    private _bottomSheetRef: MatBottomSheetRef<BottomSheetOverviewMembersOptions>
-    ) {}
-
-  openLink(event: MouseEvent): void {
-    this._bottomSheetRef.dismiss();
-    event.preventDefault();
-  }
-}

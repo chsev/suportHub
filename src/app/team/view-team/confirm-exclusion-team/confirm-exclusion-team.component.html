@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Confirmação</h1>
+<mat-dialog-content>
+    <p>Deseja realmente excluir o grupo <b>{{ passedData.team.name }}</b> ?</p>
+    <p>Essa ação não pode ser desfeita!</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="true">Confirmar</button>
+    <button mat-button [mat-dialog-close]="false">Cancelar</button>
+</mat-dialog-actions>
