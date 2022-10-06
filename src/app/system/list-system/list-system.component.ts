@@ -6,11 +6,11 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { System } from 'src/app/shared/models/system.model';
 import { UiService } from 'src/app/shared/services/ui.service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DeleteSystemComponent } from '../delete-system/delete-system.component';
 import { SystemService } from '../services/system.service';
 import { User } from 'src/app/shared/models/user.model';
 import { AccountService } from 'src/app/account/services/account.service';
+import { TeamService } from 'src/app/team/services/team.service';
+
 
 @Component({
   selector: 'app-list-system',
@@ -31,37 +31,52 @@ export class ListSystemComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-
+  
   constructor(
-    private systemService: SystemService,
     private accountService: AccountService,
+    private teamService: TeamService,
+    private systemService: SystemService,
     private uiService: UiService,
-    private router: Router,
-    private dialog: MatDialog
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
 
-      this.systemChangedSub = this.systemService.systemArrayChanged
-      .subscribe((systems: System[]) => {
-        this.dataSourceSystems.data = systems;
-        this.systems = systems;
-      })
-
       this.userDataChangedSub = this.accountService.userDataChanged
       .subscribe( (userData: User) => {
           this.user = userData;
-          if(this.user.companyId){
-            this.systemService.fetchSystems(this.user.companyId);
-          }
+          this.getUserTeams(userData);
         })
 
     this.accountService.fetchUserData();
   }
 
   
+  private getUserTeams(usr: User) {
+    if( usr.companyId && usr.id){
+      this.teamService.fetchUserTeams(usr.companyId, usr.id)
+        .subscribe( (teams) => {
+          let usrSystems: string[] = [];
+          teams.forEach( e => e.systems ? usrSystems.push(...e.systems) : '');
+          this.getSystems(usr, usrSystems);
+        })
+    }
+  }
+
+
+  private getSystems(usr: User, usrSystems: string[]) {
+    if(usr.companyId){
+      this.systemService.getSystemList(usr.companyId, usrSystems)
+      .subscribe( (systems: System[]) => {
+        this.dataSourceSystems.data = systems;
+        this.systems = systems;
+      });
+    }
+  }
+
+
   ngAfterViewInit(): void {
     this.dataSourceSystems.sort = this.sort;
     this.dataSourceSystems.paginator = this.paginator;
@@ -75,39 +90,9 @@ export class ListSystemComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  onEdit(systemId: string) {
-    // this.systemService.editingSystemId = id;
-    // this.router.navigate(['system/edit']);
-
-    let s = this.systems.find(e => e.id == systemId);
-    this.router.navigate(['system/edit'], {state: {companyId: s?.companyId, systemId: s?.id}});
-  }
-
-
-  onNew() {
-    this.router.navigate(["system/new"])
-  }
-
   onViewSystem(systemId: string){
     let s = this.systems.find(e => e.id == systemId);
     this.router.navigate(['system/view'], {state: {companyId: s?.companyId, systemId: s?.id}});
   }
-
-
-  onDelete(companyId:string, passedId: string, passedName: string) {
-    const dialogRef: MatDialogRef<DeleteSystemComponent> = this.dialog.open(DeleteSystemComponent, {
-      data: {
-        name: passedName
-      }
-    });
-    dialogRef.afterClosed().subscribe(answer => {
-      if (answer) {
-        this.systemService.remove(companyId, passedId);
-      }
-    });
-  }
-
-
-
 
 }

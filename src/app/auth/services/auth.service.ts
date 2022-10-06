@@ -5,9 +5,6 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable, Subject } from 'rxjs';
 import { UiService } from 'src/app/shared/services/ui.service';
 import { Router } from '@angular/router';
-import { CompanyService } from 'src/app/company/services/company.service';
-import { TeamService } from 'src/app/team/services/team.service';
-import { SystemService } from 'src/app/system/services/system.service';
 import { AccountService } from 'src/app/account/services/account.service';
 import { Login } from 'src/app/shared/models/login.model';
 
@@ -23,9 +20,6 @@ export class AuthService {
     private db: AngularFirestore,
     private router: Router,
     private uiService: UiService,
-    private companyService: CompanyService,
-    private teamService: TeamService,
-    private systemService: SystemService,
     private accountService: AccountService,
   ) { }
 
@@ -64,8 +58,8 @@ export class AuthService {
     this.uiService.loadingStateChanged.next(true);
     this.fireauth.createUserWithEmailAndPassword(login.email!, login.password!)
       .then(userCredencials => {
-        this.db.collection('users').doc(userCredencials.user?.uid)
-            .set(user);
+        this.db.collection('users').doc(userCredencials.user?.uid).set(user);
+        this.router.navigate(['/welcome']);
       })
       .catch(error => {
         this.uiService.showSnackbar(error.message, undefined, 10000);
@@ -103,9 +97,6 @@ export class AuthService {
   
 
   cancelSubscriptions() {
-    this.companyService.cancelSubscriptions();
-    this.teamService.cancelSubscriptions();
-    this.systemService.cancelSubscriptions();
     this.accountService.cancelSubscriptions();
   }
 

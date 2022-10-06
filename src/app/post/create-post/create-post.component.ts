@@ -49,12 +49,11 @@ export class CreatePostComponent implements OnInit {
 
   onSubmit(){
     let content = this.form.get('editor')?.value;
-    console.log(content);
     let newPost: Post = {
       usrId: this.usrId!, 
       title: this.form.get('title')?.value,
       type: this.type!,
-      teamId: this.teamId!,
+      teamId: this.teamId ?? '',
       tags: this.tags,
       liked: []
     };
@@ -63,7 +62,10 @@ export class CreatePostComponent implements OnInit {
   }
   
   goBackToTeam(){
-    this.router.navigate(['team/view'], {state: {teamId: this.teamId, companyId: this.companyId}});
+    if(this.type == 'teamPost'){
+      this.router.navigate(['team/view'], {state: {teamId: this.teamId, companyId: this.companyId}});
+    }
+    this.router.navigate(['company']);
   }
 
 

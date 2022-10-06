@@ -1,19 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { UiService } from 'src/app/shared/services/ui.service';
-import { map } from 'rxjs/operators';
 import { Team } from 'src/app/shared/models/team.model';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { increment, arrayUnion, arrayRemove, serverTimestamp,  } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { arrayUnion, arrayRemove } from '@angular/fire/firestore';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class TeamService {
-  teamArrayChanged = new Subject<Team[]>();
-  availableTeams: Team[] = [];
-  private firebaseSubs: Subscription[] = [];
-
 
   constructor(
     private db: AngularFirestore,
@@ -21,57 +17,41 @@ export class TeamService {
   ) { }
 
 
-  fetchTeams(companyId: string) {
-    this.uiService.loadingStateChanged.next(true);
-
-    this.firebaseSubs.push(
-      this.db.collection('companies').doc(companyId).collection('teams').valueChanges({idField: 'id'})
-        .subscribe({
-          next: (fetchedTeams) => {
-            if( fetchedTeams){
-              this.availableTeams = fetchedTeams as Team[];
-              this.teamArrayChanged.next([...fetchedTeams as Team[]]);
-              this.uiService.loadingStateChanged.next(false);
-            }
-          },
-          error: () => {
-            this.uiService.showSnackbar('Fetching teams failed', undefined, 3000);
-            this.uiService.loadingStateChanged.next(false);
-          }
-        })
-    );
-  }
-
-  
-  fetchTeamDoc(companyId: string, teamId: string): Observable<Team> {
-    this.uiService.loadingStateChanged.next(true);
+  fetchTeam(companyId: string, teamId: string): Observable<Team> {
     return new Observable((observer) => {
-      let sub = this.db.collection('companies').doc(companyId)
-      .collection('teams').doc<Team>(teamId).get() 
-        .subscribe({
-          next: (doc) => {
-            observer.next({...doc.data()!, id:teamId});
-            this.uiService.loadingStateChanged.next(false);
-            sub.unsubscribe();
-          }, 
-          error: (error) => {
-            observer.error(error);
-            this.uiService.loadingStateChanged.next(false);
-            sub.unsubscribe();
-          }
-        })
+      this.getTeamRef<Team>(companyId, teamId).valueChanges({ idField: 'id' })
+        .subscribe(
+          (teamDoc) => {
+            observer.next(teamDoc);
+          });
     })
   }
 
 
-  fetchTeam(companyId: string, teamId: string): Observable<Team> {
+  fetchCompanyTeams(companyId: string): Observable<Team[]> {
+    return new Observable((observer) => {
+      this.db.collection('companies').doc(companyId).collection<Team>('teams')
+        .valueChanges({ idField: 'id' })
+        .subscribe({
+          next: (fetchedTeams) => {
+            if (fetchedTeams) {
+              observer.next(fetchedTeams);
+            }
+          },
+          error: () => {
+            this.uiService.showSnackbar('Fetching teams failed', undefined, 3000);
+          }
+        });
+    });
+  }
+
+
+  fetchUserTeams(companyId: string, userId: string): Observable<Team[]> {
     return new Observable((observer) => {
       this.db.collection('companies').doc(companyId)
-      .collection('teams').doc<Team>(teamId).valueChanges({idField: 'id'}) 
-        .subscribe(
-          (teamDoc) => {
-            observer.next({...teamDoc as Team});
-          })
+        .collection<Team>('teams', ref => ref.where('members', 'array-contains', userId))
+        .valueChanges({ idField: 'id' })
+        .subscribe((teams) => observer.next(teams));
     })
   }
 
@@ -82,91 +62,84 @@ export class TeamService {
   }
 
 
-  update(companyId: string, teamId: string, team: Team){
-    this.db.collection('companies').doc(companyId)
-      .collection('teams').doc(teamId).update(team);
+  update(companyId: string, teamId: string, team: Team) {
+    this.getTeamRef(companyId, teamId).update(team);
   }
 
 
-  remove(companyId: string, teamId: string){
-    this.db.collection('companies').doc(companyId)
-      .collection('teams').doc(teamId).delete();
+  delete(companyId: string, teamId: string) {
+    this.getTeamRef(companyId, teamId).delete();
   }
 
 
-  searchById(teamId: string) {
-      return this.availableTeams.find(team => team.id === teamId);
+  addSystem(companyId: string, teamId: string, systemId: string) {
+    this.getTeamRef(companyId, teamId).update({
+      systems: arrayUnion(systemId)
+    });
   }
 
 
-  cancelSubscriptions() {
-    this.firebaseSubs.forEach(sub => sub.unsubscribe());
+  private getTeamRef<T>(companyId: string, teamId: string) {
+    return this.db.collection('companies').doc(companyId)
+      .collection<T>('teams').doc(teamId);
   }
 
 
-  addSystem(companyId:string, teamId: string, systemId: string){
-    this.db.collection('companies').doc(companyId)
-      .collection('teams').doc(teamId).update({
-        systems: arrayUnion(systemId)
-      });
+  //----------
+  // Admins
+  //-----------
+  addAdmin(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
+      administrators: arrayUnion(userId)
+    });
   }
 
 
-  addMember(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
+  removeAdmin(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
+      administrators: arrayRemove(userId)
+    });
+  }
+
+
+  //----------
+  //  Members
+  //-----------
+  addMember(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
       members: arrayUnion(userId)
     });
   }
 
 
-  removeMember(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
+  removeMember(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
       members: arrayRemove(userId)
     });
     this.removeAdmin(companyId, teamId, userId);
   }
 
 
-  addAdmin(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
-      administrators: arrayUnion(userId)
-    });
-  }
-
-
-  removeAdmin(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
-      administrators: arrayRemove(userId)
-    });
-  }
-
-
-  requestApproval(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
+  requestApproval(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
       waitingApproval: arrayUnion(userId)
     });
   }
 
 
-  acceptMember(companyId:string, teamId: string, userId: string){
+  acceptMember(companyId: string, teamId: string, userId: string) {
     this.addMember(companyId, teamId, userId);
     this.removeFromWaiting(companyId, teamId, userId);
   }
 
 
-  rejectMember(companyId:string, teamId: string, userId: string){
+  rejectMember(companyId: string, teamId: string, userId: string) {
     this.removeFromWaiting(companyId, teamId, userId);
   }
 
-  
-  removeFromWaiting(companyId:string, teamId: string, userId: string){
-    this.db.collection('companies').doc(companyId)
-    .collection('teams').doc(teamId).update({
+
+  private removeFromWaiting(companyId: string, teamId: string, userId: string) {
+    this.getTeamRef(companyId, teamId).update({
       waitingApproval: arrayRemove(userId)
     });
   }

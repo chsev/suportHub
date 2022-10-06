@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './auth/auth.guard';
-import { HomeComponent } from './home/home.component';
 import { WelcomeComponent } from './welcome/welcome/welcome.component';
 import { AuthRoutingModule } from './auth/auth-routing.module';
 import { CompanyRoutingModule } from './company/company-routing.module';
@@ -13,7 +12,6 @@ import { PostRoutingModule } from './post/post-routing.module';
 const routes: Routes = [
   { path: '', redirectTo: 'welcome', pathMatch: 'full' },
   { path: 'welcome', component: WelcomeComponent, },
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
   { path: '**', redirectTo: 'welcome'},
 
 ];

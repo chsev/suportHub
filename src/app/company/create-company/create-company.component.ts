@@ -15,7 +15,6 @@ export class CreateCompanyComponent implements OnInit {
   companyForm!: UntypedFormGroup;
   user: User | undefined;
   private userDataChangedSub: Subscription | undefined;
-  // userID: string | undefined; 
   adminName: string = '';
   administrator = new UntypedFormControl('');
 
@@ -34,7 +33,6 @@ export class CreateCompanyComponent implements OnInit {
       isPublic: new UntypedFormControl(false)
     })
     
-    // this.userID = this.accountService.getUserID();
     this.userDataChangedSub = this.accountService.userDataChanged
       .subscribe( (userData: User) => {
         this.user = userData;
@@ -43,23 +41,25 @@ export class CreateCompanyComponent implements OnInit {
     this.accountService.fetchUserData();
   }
 
+
   ngOnDestroy(): void {
     this.userDataChangedSub?.unsubscribe();
   }
 
+
   async onSubmit(){
-    let newCompanyid = await this.companyService.insert({...this.companyForm.value, administrators: [this.user?.id]});
-    if(newCompanyid){
-      console.log("cmpy id:" + newCompanyid);
-      this.accountService.updateCompany(newCompanyid);
-    } 
-    this.router.navigate(["company/welcome"]);
+    if(this.user){
+      let newCompanyid = await this.companyService.insert({...this.companyForm.value, administrators: [this.user.id]});
+      if(newCompanyid){
+        this.accountService.updateUserCompany(newCompanyid, this.user.id!);
+      } 
+      this.router.navigate(["company/welcome"]);
+    }
   }
+
 
   onCancel(){
     this.router.navigate(["company/welcome"]);
   }
-
-
 
 }

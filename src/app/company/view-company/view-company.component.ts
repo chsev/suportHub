@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -16,8 +16,11 @@ import { JoinOpenTeamComponent } from './joinOpen-team/joinOpen-team.component';
 import { JoinClosedTeamComponent } from './joinClosed-team/joinClosed-team.component';
 import { Profile } from 'src/app/shared/models/profile.model';
 import { BottomSheetOverviewMembersOptions } from './bottom-sheet-members-options/bottom-sheet-members-options';
-import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { ConfirmExclusionCompanyComponent } from './confirm-exclusion-company/confirm-exclusion-company.component';
+import { Timestamp } from 'firebase/firestore';
+import { Post } from 'src/app/shared/models/post.model';
+import { PostService } from 'src/app/post/services/post.service';
+import { SendInviteCompanyComponent } from './send-invite-company/send-invite-company.component';
 
 
 @Component({
@@ -37,31 +40,34 @@ export class ViewCompanyComponent implements OnInit {
   dataSourceWaitingApp = new MatTableDataSource<Profile>([]);
   @ViewChild('waitingApp') waitingAppTable: MatTable<Profile> | undefined;
 
-  teams: Team[] = [];
-  displayedColumnsTeams = ['name', 'description', 'nmembers', 'isopen', 'action'];
+  teams: Team[] | undefined;
+  displayedColumnsTeams = ['name', 'description', 'nmembers', 'nsystems', 'isopen', 'action'];
   dataSourceTeams = new MatTableDataSource<Team>([]);
-  @ViewChild('teams') teamsTable: MatTable<Team> | undefined;
+  @ViewChild('teamsTable') teamsTable: MatTable<Team> | undefined;
 
-  systems: System[] = [];
+  systems: System[] | undefined;
   displayedColumnsSystems = ['name', 'description', 'ndocs', 'action'];
   dataSourceSystems = new MatTableDataSource<System>([]);
-  @ViewChild('systems') systemsTable: MatTable<System> | undefined;
+  @ViewChild('systemsTable') systemsTable: MatTable<System> | undefined;
 
   user: User | undefined;
   company: Company | undefined;
   showCompanyCardContent = false;
-  private userDataChangedSub!: Subscription;
-  private teamChangedSub!: Subscription;
+  private userDataChangedSub: Subscription | undefined;
+  private waitingApprovalSub: Subscription | undefined;
+  private membersSub: Subscription | undefined;
   isLoading = false;
 
-private waitingApprovalSub: Subscription | undefined;
-private membersSub: Subscription | undefined;
+  posts: Post[] = [];
+  authors: Profile[] = [];
+
 
   constructor(
     private companyService: CompanyService,
     private accountService: AccountService,
     private teamService: TeamService,
     private systemService: SystemService,
+    private postService: PostService,
     private router: Router,
     private _bottomSheet: MatBottomSheet,
     private dialog: MatDialog
@@ -74,8 +80,12 @@ private membersSub: Subscription | undefined;
 
 
   ngOnDestroy(): void {
-    if (this.userDataChangedSub) { this.userDataChangedSub.unsubscribe(); }
-    if (this.teamChangedSub) { this.teamChangedSub.unsubscribe(); }
+    this.userDataChangedSub?.unsubscribe();
+    this.waitingApprovalSub?.unsubscribe();
+    this.membersSub?.unsubscribe();
+    this.systemsTable = undefined;
+    this.waitingAppTable = undefined;
+    this.membersTable = undefined;
   }
 
 
@@ -86,10 +96,10 @@ private membersSub: Subscription | undefined;
         this.fetchCompanyDoc(userData.companyId);
         this.fetchCompanyData(userData.companyId);
         this.fetchTeams(userData.companyId);
+        this.getPosts(userData.companyId);
       });
     this.accountService.fetchUserData();
   }
-
 
 
   //=========
@@ -101,21 +111,23 @@ private membersSub: Subscription | undefined;
         .subscribe((companyDoc) => {
           if (!this.company) {
             this.company = companyDoc;
-
-            // this.getWaitingApproval(['44dvYb0VdnfyRXBdXrtED7afFAp1']);
-            // this.getMembersData(['44dvYb0VdnfyRXBdXrtED7afFAp1', 
-            // 'HJhHgF2trIOv3UUUfJYnzlCas6w2', 'v4yisPjzS5VTrzrjl6QX6pTKdSi2']);
           }
           else {
-            this.company.id = companyDoc.id;
-            this.company.name = companyDoc.name;
-            this.company.description = companyDoc.description;
-            this.company.segment = companyDoc.segment;
-            this.company.nMembers = companyDoc.nMembers;
-            this.company.isPublic = companyDoc.isPublic;
-            this.company.isOpen = companyDoc.isOpen;
+            this.updateCompanyData(companyDoc);
           }
         });
+    }
+  }
+
+  private updateCompanyData(companyDoc: Company) {
+    if(this.company){
+      this.company.id = companyDoc.id;
+      this.company.name = companyDoc.name;
+      this.company.description = companyDoc.description;
+      this.company.segment = companyDoc.segment;
+      this.company.nMembers = companyDoc.nMembers;
+      this.company.isPublic = companyDoc.isPublic;
+      this.company.isOpen = companyDoc.isOpen;
     }
   }
 
@@ -130,18 +142,15 @@ private membersSub: Subscription | undefined;
             this.company.members = data.members;
             this.company.administrators = data.administrators;
             this.company.waitingApproval = data.waitingApproval;
-
-
           }
           this.getMembersData(data.members ?? []);
           this.getWaitingApproval(data.waitingApproval ?? []);
-        }
-        )
+        });
     }
   }
 
 
-  userIsCpyAdmin(usrId: string): boolean {
+  isCompanyAdmin(usrId: string): boolean {
     if (this.company?.administrators?.includes(usrId)) {
       return true;
     }
@@ -155,27 +164,39 @@ private membersSub: Subscription | undefined;
     }
   }
 
-  
-  onDelete( ){
-      const dialogRef: MatDialogRef<ConfirmExclusionCompanyComponent> = this.dialog.open(ConfirmExclusionCompanyComponent, {
-        data: { company: this.company }
-      });
-      dialogRef.afterClosed().subscribe(answer => {
-        if (answer) {
-          console.log("Excluir!");
-          this.companyService.remove(this.company?.id!);
-        }
-      });
-  }
 
-  exitCompany(){
-      if (this.company && this.user) {
-        this.companyService.removeMember(this.company.id!, this.user.id!);
+  onDelete() {
+    const dialogRef: MatDialogRef<ConfirmExclusionCompanyComponent> = this.dialog.open(ConfirmExclusionCompanyComponent, {
+      data: { company: this.company }
+    });
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer && this.company) {
+        this.companyService.remove(this.company.id!);
         this.router.navigate(['company']);
       }
-    
+    });
   }
 
+  exitCompany() {
+    if (this.company && this.user) {
+      this.companyService.removeMember(this.company.id!, this.user.id!);
+      this.router.navigate(['company']);
+    }
+
+  }
+
+
+  openSendInviteDialog(){
+    const dialogRef: MatDialogRef<SendInviteCompanyComponent> = this.dialog.open(SendInviteCompanyComponent, {
+      data: { company: this.company }
+    });
+
+    dialogRef.afterClosed().subscribe(answer => {
+      if (answer && this.company) {
+        this.companyService.createInvitation(this.company.id!, answer)
+      }
+    });
+  }
 
 
   //=========
@@ -188,7 +209,7 @@ private membersSub: Subscription | undefined;
         if (membersList) {
           this.members = membersList;
           this.dataSourceMembers.data = membersList;
-          this.membersTable!.renderRows();
+          this.membersTable?.renderRows();
         }
       });
   }
@@ -197,12 +218,12 @@ private membersSub: Subscription | undefined;
   openBottomSheet(userId: string): void {
     let prfl = this.members?.find(e => e.id == userId);
     this._bottomSheet.open(BottomSheetOverviewMembersOptions, {
-      data: { 
-        companyId: this.company?.id, 
-        profile: prfl, 
-        isAdmin: this.userIsCpyAdmin(userId), 
+      data: {
+        companyId: this.company?.id,
+        profile: prfl,
+        isAdmin: this.isCompanyAdmin(userId),
         curUser: this.user,
-        curIsAdmin: this.userIsCpyAdmin(this.user?.id!)
+        curIsAdmin: this.isCompanyAdmin(this.user?.id!)
       }
     });
   }
@@ -216,29 +237,28 @@ private membersSub: Subscription | undefined;
     this.waitingApprovalSub?.unsubscribe();
     this.waitingApprovalSub = this.accountService.fetchProfileList(ids)
       .subscribe((profilesList: Profile[]) => {
-          this.waitingApproval = profilesList;
-          this.dataSourceWaitingApp.data = profilesList;
-          this.waitingAppTable!.renderRows();
+        this.waitingApproval = profilesList;
+        this.dataSourceWaitingApp.data = profilesList;
+        this.waitingAppTable?.renderRows();
       });
   }
 
 
   approveMember(usrId: string) {
     let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
-    if (this.company && i>-1) {
+    if (this.company && i > -1 && this.isCompanyAdmin(this.user?.id!)) {
       this.dataSourceWaitingApp.data.splice(i, 1);
-      this.waitingAppTable!.renderRows();
+      this.waitingAppTable?.renderRows();
       this.companyService.acceptMember(this.company.id!, usrId);
-      // this.accountService.updateUserCompany(this.company.id!, usrId);
     }
   }
 
 
   rejectMember(usrId: string) {
     let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
-    if (this.company  && i>-1) {
+    if (this.company && i > -1 && this.isCompanyAdmin(this.user?.id!)) {
       this.dataSourceWaitingApp.data.splice(i, 1);
-      this.waitingAppTable!.renderRows();
+      this.waitingAppTable?.renderRows();
       this.companyService.rejectMember(this.company.id!, usrId);
     }
   }
@@ -250,7 +270,7 @@ private membersSub: Subscription | undefined;
   //=========
   private fetchTeams(companyId: string | undefined) {
     if (companyId) {
-      this.teamChangedSub = this.teamService.teamArrayChanged
+      this.teamService.fetchCompanyTeams(companyId)
         .subscribe((data: Team[]) => {
           this.teams = data;
           this.dataSourceTeams.data = data;
@@ -260,13 +280,12 @@ private membersSub: Subscription | undefined;
           this.teams.forEach(t => t.systems ? allSystems.push(...t.systems) : '');
           this.getSystemsData(allSystems);
         })
-      this.teamService.fetchTeams(companyId)
     }
   }
 
 
   userIsTeamMember(teamId: string, usrId: string): boolean {
-    let t = this.teams.find(e => e.id === teamId);
+    let t = this.teams?.find(e => e.id === teamId);
     if (t && t.members?.includes(usrId)) {
       return true;
     }
@@ -275,7 +294,7 @@ private membersSub: Subscription | undefined;
 
 
   onViewTeam(teamId: string) {
-    let t = this.teams.find(e => e.id == teamId);
+    let t = this.teams?.find(e => e.id == teamId);
     this.router.navigate(['team/view'], { state: { teamId: t?.id, companyId: t?.companyId } });
   }
 
@@ -286,7 +305,7 @@ private membersSub: Subscription | undefined;
 
 
   joinTeam(teamId: string) {
-    let team = this.teams.find(t => t.id == teamId);
+    let team = this.teams?.find(t => t.id == teamId);
     if (!team) {
       return;
     }
@@ -301,7 +320,6 @@ private membersSub: Subscription | undefined;
 
     dialogRef.afterClosed().subscribe(answer => {
       if (answer) {
-        // console.log("Aceitou Open");
         this.teamService.addMember(this.company?.id!, team.id!, this.user?.id!);
       }
     });
@@ -315,19 +333,17 @@ private membersSub: Subscription | undefined;
 
     dialogRef.afterClosed().subscribe(answer => {
       if (answer) {
-        console.log("Aceitou Closed");
         this.teamService.requestApproval(this.company?.id!, team.id!, this.user?.id!);
       }
     });
   }
 
 
-
   //=========
   // Systems
   //=========
   private getSystemsData(systemsIds: string[]): void {
-    this.systemService.fetchSystemDocList(this.company?.id!, systemsIds)
+    this.systemService.getSystemList(this.company?.id!, systemsIds)
       .subscribe((systemsList) => {
         this.systems = systemsList;
         this.dataSourceSystems.data = systemsList;
@@ -337,10 +353,85 @@ private membersSub: Subscription | undefined;
 
 
   onViewSystem(systemId: string) {
-    let s = this.systems.find(e => e.id == systemId);
-    this.router.navigate(['system/view'], { state: { companyId: s?.companyId, systemId: s?.id } });
+    let sys = this.systems?.find(e => e.id == systemId);
+    if (sys) {
+      this.router.navigate(['system/view'], { state: { companyId: sys.companyId, systemId: sys.id } });
+    }
   }
 
+
+  canAccessSystem(systemId: string, userId: string): boolean {
+    let sys = this.systems?.find(e => e.id === systemId);
+    let t = this.teams?.find(e => e.id == sys?.teamId);
+    let canAccess = t?.members?.includes(userId);
+    return canAccess ?? false;
+  }
+
+
+  //==================
+  //   Posts:
+  //==================
+  getPosts(companyId: string | undefined) {
+    if (!companyId) return;
+
+    this.postService.fetchCompanyPosts(companyId)
+      .subscribe(posts => {
+        this.posts = posts;
+        let authorsIds = [...new Set(this.posts.map(e => e.usrId))]; //remove duplicates
+        this.getAuthors(authorsIds);
+      });
+  }
+
+
+  private getAuthors(authorsIds: string[]) {
+    this.accountService.fetchProfileList(authorsIds)
+      .subscribe((profiles) => {
+        this.authors = profiles;
+      });
+  }
+
+
+  toDate(timestamp: Timestamp): string {
+    if(!timestamp){
+      return '';
+    }
+    return timestamp.toDate().toLocaleString('pt-br');
+  }
+
+
+  getAuthor(id: string): Profile | undefined {
+    return this.authors.find(e => e.id == id);
+  }
+
+
+  toggleLike(postId: string) {
+    this.postService.toggleLike(this.company?.id!, postId, this.user?.id!);
+  }
+
+  
+  userLiked(post: Post): boolean {
+    if (this.user && post) {
+      return post.liked.includes(this.user.id!);
+    }
+    return false;
+  }
+
+
+  viewPost(postId: string) {
+    this.router.navigate(['post/view', postId]);
+  }
+
+
+  onAddPost() {
+    this.router.navigate(['post/new'], {
+      state: {
+        teamId: undefined,
+        companyId: this.company?.id,
+        usrId: this.user!.id,
+        type: 'companyPost'
+      }
+    });;
+  }
 
 
 }

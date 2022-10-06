@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Enviar Convite</h1>
+<mat-dialog-content>
+    <p>Um usuário logado com o e-mail abaixo verá um convite para se juntar a este grupo de Empresa.</p>
+
+    <form [formGroup]="form">
+        <mat-form-field>
+            <input matInput type="email" placeholder="email" formControlName="email">
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button [disabled]="form.invalid" (click)="sendInvite()">Enviar</button>
+    <button mat-button (click)="onCancel()">Cancela</button>
+</mat-dialog-actions>

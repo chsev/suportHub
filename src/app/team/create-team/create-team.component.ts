@@ -7,6 +7,7 @@ import { Team } from 'src/app/shared/models/team.model';
 import { User } from 'src/app/shared/models/user.model';
 import { TeamService } from '../services/team.service';
 
+
 @Component({
   selector: 'app-create-team',
   templateUrl: './create-team.component.html',
@@ -18,11 +19,13 @@ export class CreateTeamComponent implements OnInit {
   user: User | undefined;
   private userDataChangedSub: Subscription | undefined;
 
+
   constructor(
     private router: Router,
     private teamService: TeamService,
     private accountService: AccountService,
   ) { }
+
 
   ngOnInit(): void {
     this.teamForm = new UntypedFormGroup({
@@ -39,9 +42,11 @@ export class CreateTeamComponent implements OnInit {
     this.accountService.fetchUserData();
   }
 
+
   ngOnDestroy(): void {
     this.userDataChangedSub?.unsubscribe();
   }
+
 
   onSubmit(){
     let newTeam: Team = {
@@ -54,6 +59,7 @@ export class CreateTeamComponent implements OnInit {
     this.router.navigate(["team/list"]);
   }
 
+  
   onCancel(){
     this.router.navigate(["team/list"]);
   }

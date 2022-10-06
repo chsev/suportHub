@@ -22,7 +22,7 @@ import { AuthService } from './services/auth.service';
     RouterModule,
     MaterialModule,
     FlexLayoutModule,
-    ReactiveFormsModule, //?
+    ReactiveFormsModule,
     AngularFireAuthModule,
     AngularFirestoreModule
   ],

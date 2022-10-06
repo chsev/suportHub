@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { increment} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-// import { map } from 'rxjs/operators';
 import { Doc } from 'src/app/shared/models/doc.model';
-import { UiService } from 'src/app/shared/services/ui.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,71 +11,76 @@ import { UiService } from 'src/app/shared/services/ui.service';
 export class DocService {
 
   constructor(
-    private db: AngularFirestore,
-    private uiService: UiService,
+    private db: AngularFirestore
   ) { }
 
+
   insert(companyId: string, systemId: string, docId: string, newDoc: Doc) {
-    this.db
-      .collection('companies').doc(companyId)
-      .collection('systems').doc(systemId)
-      .collection('documents').doc(docId).set(newDoc);
+    let systemRef = this.getSystemRef(companyId, systemId);
+
+    systemRef.collection('documents').doc(docId)
+      .set(newDoc)
+      .then(() => systemRef.update({
+        nDocs: increment(1)
+      })
+      );
   }
 
 
-  fetchDocumentsList(companyId: string, systemID: string, docIDs: string[]): Observable<Doc[]> {
+  delete(companyId: string, systemId: string, docId: string, updateSystem = true) {
+    if(updateSystem){
+      this.getSystemRef(companyId, systemId).update({
+        nDocs: increment(-1)
+      });
+    }
+    return this.getDocRef<Doc>(companyId, systemId, docId).delete()
+  }
+
+
+  getDocumentList(companyId: string, systemId: string, docIDs: string[]): Observable<Doc[]> {
     return new Observable((observer) => {
       let documents: Doc[] = [];
       docIDs.forEach((id) => {
-        let sub = this.db.collection('companies').doc(companyId)
-          .collection('systems').doc(systemID)
-          .collection('documents').doc<Doc>(id).get()
+        this.getDocRef<Doc>(companyId, systemId, id).get()
           .subscribe((doc) => {
             if (doc.data()) {
               documents.push({ ...doc.data()!, id: id });
               observer.next(documents);
-              sub.unsubscribe();
             }
           })
       })
     })
   }
 
-  fetchAllDocumentsOfSystem(companyId: string, systemId: string): Observable<Doc[]> {
-    this.uiService.loadingStateChanged.next(true);
 
+  fetchSystemDocuments(companyId: string, systemId: string): Observable<Doc[]> {
     return new Observable((observer) => {
-      this.db.collection('companies').doc(companyId)
-        .collection('systems').doc(systemId)
-        .collection<Doc>('documents').valueChanges({idField: 'id'})
-        // .pipe( map(actions => actions.map(
-        //   a => {
-        //     const data = a.payload.doc.data() as Doc;
-        //     const id = a.payload.doc.id;
-        //     return { ...data, id: id };
-        //   }
-        // )))
+      this.getSystemRef(companyId, systemId).collection<Doc>('documents')
+        .valueChanges({ idField: 'id' })
         .subscribe({
           next: (fetchedDocs: Doc[]) => {
             observer.next(fetchedDocs);
-            this.uiService.loadingStateChanged.next(false);
           },
           error: (error) => {
             observer.error(error);
-            this.uiService.loadingStateChanged.next(false);
           }
         })
     })
   }
 
 
-  // toFilePath(companyId: string, systemId: string, docId: string, fileName: string) {
-  //   return ['companies', companyId, 'systems', systemId, 'docs', docId, fileName].join('/');
-  // }
+
+  private getSystemRef(companyId: string, systemId: string) {
+    return this.db.collection('companies').doc(companyId)
+      .collection('systems').doc(systemId);
+  }
 
 
-
-
+  private getDocRef<T>(companyId: string, systemID: string, docId: string) {
+    return this.db.collection('companies').doc(companyId)
+      .collection('systems').doc(systemID)
+      .collection('documents').doc<T>(docId);
+  }
 
 }
 

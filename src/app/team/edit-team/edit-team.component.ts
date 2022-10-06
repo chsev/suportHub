@@ -7,6 +7,7 @@ import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AccountService } from 'src/app/account/services/account.service';
 
+
 @Component({
   selector: 'app-edit-team',
   templateUrl: './edit-team.component.html',
@@ -22,6 +23,7 @@ export class EditTeamComponent implements OnInit {
     isOpen: new UntypedFormControl(false),
   })
 
+
   constructor(
     private teamService: TeamService,
     private accountService: AccountService,
@@ -29,9 +31,10 @@ export class EditTeamComponent implements OnInit {
     private location: Location
   ) { }
 
+
   ngOnInit(): void {
     let state: any = this.location.getState();
-    this.teamService.fetchTeamDoc(state.companyId, state.teamId).subscribe(
+    this.teamService.fetchTeam(state.companyId, state.teamId).subscribe(
       (teamData: Team) => {
         this.team = teamData;
         this.teamForm.setValue({
@@ -59,13 +62,14 @@ export class EditTeamComponent implements OnInit {
 
 
   private fetchAdmin(uids: string[]) {
-    this.userSub = this.accountService.fetchUserDocList(uids)
+    this.userSub = this.accountService.fetchUserList(uids)
       .subscribe(data => {
         this.administrators = data
           .map(usr => new UntypedFormControl(`${usr.name} (${usr.email})`));
       })
   }
 
+  
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
   }

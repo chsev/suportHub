@@ -1,5 +1,6 @@
 <div *ngIf='user' fxLayout="column" fxLayoutAlign="center center">
 
+    <!-- <mat-card  style="max-width: 430px;"> -->
     <mat-card *ngIf="user?.pendingApproval" style="max-width: 430px;">
         <mat-card-content fxLayout="row" fxLayoutAlign="start center">
             <div fxFlex="40px">
@@ -17,6 +18,7 @@
         </mat-card-actions>
     </mat-card>
 
+    <!-- <div> -->
     <div *ngIf="!user?.pendingApproval && !user?.companyId">
         <mat-card fxLayoutGap="8px" fxLayout="row" fxLayoutAlign="center center">
             <mat-icon>info</mat-icon>
@@ -25,7 +27,7 @@
 
         <br><br>
 
-        <div fxHide.gt-xs>
+        <div fxHide.gt-xs fxLayoutAlign="center center">
             <button mat-raised-button color="primary" (click)="onCreateCompany()">
                 <mat-icon>domain_add</mat-icon>
                 <span style="padding-left: 10px;">Novo Grupo de Empresa</span>
@@ -43,7 +45,7 @@
 
         <br>
 
-        <div fxHide.gt-xs>
+        <div fxHide.gt-xs fxLayoutAlign="center center">
             <button mat-raised-button color="primary" (click)="onSearchCompany()">
                 <mat-icon>travel_explore</mat-icon>
                 <span style="padding-left: 10px;">Pesquisar grupos públicos</span>
@@ -62,13 +64,31 @@
 
     <!-- debug only -->
     <br>
-    <button mat-raised-button color="warn" (click)="onViewCompany()">
+    <button *ngIf="user?.companyId" mat-raised-button color="warn" (click)="onViewCompany()">
         <mat-icon>visibility</mat-icon>
-        <span style="padding-left: 10px;">Ver para empresa</span>
+        <span style="padding-left: 10px;">Ir para empresa</span>
     </button>
 
-    <!-- <span>{{user?.companyId ? user?.companyId : "sem company"}}</span> -->
+    <div *ngFor="let invite of invitations">
+        <mat-card >
+            <mat-card-content>
+                <p>
+                    Você recebeu um convite para se juntar ao grupo da empresa 
+                    <strong>{{getCompanyName(invite.companyId)}}</strong>
+                </p>
+                <p> em {{toDate(invite.created!)}}</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <button mat-button (click)="acceptInvite(invite)">Aceitar</button>
+                <button mat-button (click)="refuseInvite(invite)">Recusar</button>
+            </mat-card-actions>
+        </mat-card>
+        <br>
+    </div>
 </div>
+
+
+
 
 <div fxLayout="column" fxLayoutAlign="center center" *ngIf='!user || isLoading'>
     <mat-spinner></mat-spinner>

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { CreateTeamComponent } from './create-team/create-team.component';
 import { EditTeamComponent } from './edit-team/edit-team.component';
 import { ListTeamComponent } from './list-team/list-team.component';
-import { DeleteTeamComponent } from './delete-team/delete-team.component';
 import { TeamService } from './services/team.service';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material/material.module';
@@ -20,7 +19,6 @@ import { ConfirmExclusionTeamComponent } from './view-team/confirm-exclusion-tea
     CreateTeamComponent,
     EditTeamComponent,
     ListTeamComponent,
-    DeleteTeamComponent,
     ViewTeamComponent,
     BottomSheetTeamComponent,
     ConfirmExclusionTeamComponent

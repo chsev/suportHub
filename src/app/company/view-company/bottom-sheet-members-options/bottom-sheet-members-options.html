@@ -8,20 +8,20 @@
     <mat-divider></mat-divider>
 
 
-    <mat-list-item *ngIf="passedData.curIsAdmin" [disabled]='passedData.isAdmin' (click)="makeAdmin($event)">
+    <mat-list-item *ngIf="passedData.curIsAdmin" [disabled]='passedData.isAdmin' (click)="makeAdmin()">
         <mat-icon matListIcon>assignment_ind</mat-icon>
         <span mat-line>Tornar administrador</span>
         <span mat-line *ngIf="passedData.isAdmin">usuário já é administrador</span>
     </mat-list-item>
 
 
-    <mat-list-item  *ngIf="passedData.curIsAdmin && self()" (click)="removeAdmin($event)">
+    <mat-list-item  *ngIf="passedData.curIsAdmin && self()" (click)="removeAdmin()">
         <mat-icon matListIcon>remove</mat-icon>
         <span mat-line>Deixar de ser administrador</span>
     </mat-list-item>
 
 
-    <mat-list-item *ngIf="passedData.curIsAdmin && !self()" [disabled]='passedData.isAdmin' (click)="removeMember($event)">
+    <mat-list-item *ngIf="passedData.curIsAdmin && !self()" [disabled]='passedData.isAdmin' (click)="removeMember()">
         <mat-icon matListIcon>sports_martial_arts</mat-icon>
         <span mat-line>Kickar usuário</span>
     </mat-list-item>

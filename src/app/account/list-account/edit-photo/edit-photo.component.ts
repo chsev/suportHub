@@ -32,7 +32,6 @@ export class EditPhotoComponent {
         if (selectedFile) {
             reader.onload = (event) => { this.imageSrc = event.target!.result };
             this.myFile = selectedFile;
-            //   this.fileName = selectedFile.name;
             reader.readAsDataURL(selectedFile);
             this.validateImage();
         }

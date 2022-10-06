@@ -4,6 +4,7 @@ import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask 
 import { UntypedFormControl, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Doc } from "src/app/shared/models/doc.model";
+import { UiService } from "src/app/shared/services/ui.service";
 import { DocService } from "../../services/doc.service";
 
 
@@ -29,7 +30,8 @@ export class UploadDocSystemComponent {
     @Inject(MAT_DIALOG_DATA) public passedData: any,
     private storage: AngularFireStorage,
     private db: AngularFirestore,
-    private docService: DocService
+    private docService: DocService,
+    private uiService: UiService
   ) { }
 
 
@@ -55,7 +57,6 @@ export class UploadDocSystemComponent {
       let newGroupId = this.db.createId();
       let ver: string = this.fileVersion.value;
       const filePath = this.toFilePath(this.companyId, this.systemId, newDocId, this.fileName);
-      console.log(filePath); //for debuging
       const fileRef = this.storage.ref(filePath);
       this.uploadTask = this.storage.upload(filePath, this.myFile);
 
@@ -68,8 +69,7 @@ export class UploadDocSystemComponent {
 
       this.uploadTask.snapshotChanges().subscribe({
         error: (error) => {
-          console.log("Unsuccessful Upload:")
-          console.log(error);
+          this.uiService.showSnackbar(error, undefined, 3000);
           this.resetUpload();
         },
         complete: () => { //on successful upload:
@@ -91,7 +91,6 @@ export class UploadDocSystemComponent {
     // Get metadata properties:
     fileRef.getMetadata().subscribe({
       next: (metadata) => {
-        console.log(metadata); //for debuging
         let newDoc: Doc = {
           docGroupId: newGroupId,
           version: ver,
@@ -104,11 +103,10 @@ export class UploadDocSystemComponent {
         //update firestore:
         this.docService.insert(this.companyId, this.systemId, newDocId, newDoc);
       },
-      error: (error) => console.log(error)
+      error: (error) => this.uiService.showSnackbar(error, undefined, 3000)
     }
     );
   }
-
 
 
   cancelUpload() {

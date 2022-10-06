@@ -40,12 +40,12 @@
     
     <mat-divider *ngIf="isAuth"></mat-divider>
 
-    <a *ngIf="isAuth" mat-list-item (click)="onClose()">
+    <!-- <a *ngIf="isAuth" mat-list-item (click)="onClose()">
         <mat-icon>settings</mat-icon>
         <span class="navigation-caption">Configurações</span>
-    </a>
+    </a> -->
 
-    <mat-divider ></mat-divider>
+    <!-- <mat-divider ></mat-divider> -->
 
     <mat-list-item *ngIf="isAuth">
         <button mat-icon-button (click)="onLogout()">

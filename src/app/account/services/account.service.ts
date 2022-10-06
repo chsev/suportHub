@@ -29,7 +29,7 @@ export class AccountService {
   ) { }
 
 
-  fetchUserData() {
+  fetchUserData(): void {
     this.fetchUserID()
       .then((uid) => {
         this.currentUID = uid;
@@ -41,38 +41,31 @@ export class AccountService {
 
 
   private fetchCurrentUserDoc() {
-    this.uiService.loadingStateChanged.next(true);
     this.firebaseSubs.push(
       this.db.collection('users').doc<User>(this.currentUID).valueChanges({ idField: 'id' })
         .subscribe({
           next: (doc) => {
             if (doc) {
               this.userDataChanged.next(doc);
-              this.uiService.loadingStateChanged.next(false);
             }
           },
-          error: () => {
-            this.uiService.showSnackbar('Fetching user data failed', undefined, 3000);
-            this.uiService.loadingStateChanged.next(false);
-          }
+          error: () => this.uiService.showSnackbar('Fetching user data failed', undefined, 3000)
         })
     );
   }
 
 
-  fetchUserDoc(uid: string): Observable<User> {
+  getUserDoc(uid: string): Observable<User> {
     return new Observable((observer) => {
-      let sub = this.db.collection('users').doc<User>(uid).get()
-        .subscribe((doc) => {
-          observer.next({ ...doc.data(), id: uid });
-          sub.unsubscribe();
-        })
+      this.db.collection('users').doc<User>(uid).get()
+        .subscribe(
+          (doc) => observer.next({ ...doc.data(), id: uid })
+        )
     })
   }
 
 
   fetchProfile(uid: string): Observable<Profile> {
-    this.uiService.loadingStateChanged.next(true);
     return new Observable((observer) => {
       this.db.collection('users').doc<User>(uid).get()
         .subscribe((usrdoc) => {
@@ -81,7 +74,6 @@ export class AccountService {
             let path = usr.profileImg ? `users/${uid}/profile/${usr.profileImg}` : DEFAULT_profileImgUrl;
             this.storage.ref(path).getDownloadURL()
               .subscribe((url) => {
-                this.uiService.loadingStateChanged.next(false);
                 observer.next({ ...usr, id: uid, photoUrl: url });
               });
           }
@@ -90,17 +82,16 @@ export class AccountService {
   }
 
 
-  fetchUserDocList(usersID: string[]): Observable<User[]> {
+  fetchUserList(usersID: string[]): Observable<User[]> {
     return new Observable((observer) => {
       let users: User[] = [];
       usersID.forEach((uid) => {
-        let sub = this.db.collection('users').doc<User>(uid).get()
+        this.db.collection('users').doc<User>(uid).get()
           .subscribe((usrdoc) => {
             let usr: User | undefined = usrdoc.data();
             if (usr) {
               users.push({ ...usr, id: uid });
               observer.next(users);
-              sub.unsubscribe();
             }
           })
       })
@@ -114,7 +105,7 @@ export class AccountService {
       let count = 0
       let profiles: Profile[] = [];
 
-      if(len==0){
+      if (len == 0) {
         observer.next([]);
         return;
       }
@@ -128,18 +119,28 @@ export class AccountService {
                 let path = usr.profileImg ? `users/${uid}/profile/${usr.profileImg}` : DEFAULT_profileImgUrl;
                 this.storage.ref(path).getDownloadURL()
                   .subscribe({
-                      next: (url) => {
-                        profiles.push({ ...usr, id: uid, photoUrl: url });
-                        count++;
-                        if (count == len) {
-                          observer.next(profiles);
-                        }
-                      }, 
-                      error: () => { count++; }
-                    });
+                    next: (url) => {
+                      profiles.push({ ...usr, id: uid, photoUrl: url });
+                      count++;
+                      if (count == len) {
+                        observer.next(profiles);
+                      }
+                    },
+                    error: () => {
+                      count++;
+                      if (count == len) {
+                        observer.next(profiles);
+                      }
+                    }
+                  });
               }
             },
-            error: () => { count++; }
+            error: () => {
+              count++;
+              if (count == len) {
+                observer.next(profiles);
+              }
+            }
           });
       });
     });
@@ -152,11 +153,10 @@ export class AccountService {
         if (user) {
           return user.uid;
         }
-        console.log("user: undefined");
         return undefined;
       })
       .catch((err) => {
-        console.log(err);
+        this.uiService.showSnackbar(err, undefined, 3000);
         return undefined;
       });
   }
@@ -168,70 +168,47 @@ export class AccountService {
         position: newPosition
       })
       .then(() => {
-        console.log("Document successfully updated!");
+        // console.log("Document successfully updated!");
       })
       .catch((error) => { // The document probably doesn't exist.
         this.uiService.showSnackbar("Error updating document: " + error.toString(), undefined, 3000);
-        console.error("Error updating document: ", error);
       })
   }
 
-
-  updateCompany(newCompanyID: string) {
-    this.db.collection('users').doc(this.currentUID)
-      .update({
-        company: newCompanyID
-      })
-      .then(() => {
-        console.log("Document successfully updated!");
-      })
-      .catch((error) => {  // The document probably doesn't exist.
-        this.uiService.showSnackbar("Error updating document: " + error.toString(), undefined, 3000);
-        console.error("Error updating document: ", error);
-      })
-  }
 
   updateUserCompany(newCompanyID: string | undefined, usrId: string) {
     this.db.collection('users').doc(usrId)
       .update({
-        company: newCompanyID ?? deleteField()
+        companyId: newCompanyID ?? deleteField()
       })
       .then(() => {
-        console.log("Document successfully updated!");
+        // console.log("Document successfully updated!");
       })
       .catch((error) => {  // The document probably doesn't exist.
         this.uiService.showSnackbar("Error updating document: " + error.toString(), undefined, 3000);
-        console.error("Error updating document: ", error);
       })
   }
 
 
-  updateUserPendingApproval(companyId: string | undefined, usrId: string) {
+  updatePendingApproval(companyId: string | undefined, usrId: string) {
     this.db.collection('users').doc(usrId)
       .update({
         pendingApproval: companyId ?? deleteField()
       })
       .then(() => {
-        console.log("Document successfully updated!");
+        // console.log("Document successfully updated!");
       })
       .catch((error) => {  // The document probably doesn't exist.
         this.uiService.showSnackbar("Error updating document: " + error.toString(), undefined, 3000);
-        console.error("Error updating document: ", error);
       })
   }
 
 
-  updateProfileImg(usrId: string, filename: string | undefined){
+  updateProfileImg(usrId: string, filename: string | undefined) {
     let usrDocRef = this.db.collection('users').doc(usrId);
-    // if(filename){
-      usrDocRef.update({
-        profileImg: filename ?? deleteField()
-      });
-      return;
-    // }
-    // usrDocRef.update({
-    //   profileImg: deleteField()
-    // });
+    usrDocRef.update({
+      profileImg: filename ?? deleteField()
+    });
   }
 
 

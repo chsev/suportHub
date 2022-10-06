@@ -4,6 +4,7 @@ import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask 
 import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Doc } from "src/app/shared/models/doc.model";
+import { UiService } from "src/app/shared/services/ui.service";
 import { DocService } from "../../services/doc.service";
 
 
@@ -18,7 +19,6 @@ export class UploadVersionSystemComponent {
   uploadProgress: number | undefined;
   uploadTask: AngularFireUploadTask | undefined;
   uploadComplete = false;
-
   companyId!: string;
   systemId!: string;
   groupId!: string;
@@ -28,7 +28,8 @@ export class UploadVersionSystemComponent {
     @Inject(MAT_DIALOG_DATA) public passedData: any,
     private storage: AngularFireStorage,
     private db: AngularFirestore,
-    private docService: DocService
+    private docService: DocService,
+    private uiService: UiService
   ) { }
 
 
@@ -59,30 +60,27 @@ export class UploadVersionSystemComponent {
     if (this.myFile) {
       this.uploadProgress = 0; //immediately disables button
       let newDocId = this.db.createId();
-      // let newGroupId = this.db.createId();
       let ver: string = this.fileVersion.value;
       const filePath = this.toFilePath(this.companyId, this.systemId, newDocId, this.fileName);
-      console.log(filePath); //for debuging
       const fileRef = this.storage.ref(filePath);
       this.uploadTask = this.storage.upload(filePath, this.myFile);
 
       //get updates on upload percentage:
-      this.uploadTask.percentageChanges().subscribe(
-        percentageValue => this.uploadProgress = percentageValue,
-        (error) => { } //unsuccessful upload: do nothing with percentage
+      this.uploadTask.percentageChanges().subscribe({
+        next: percentageValue => this.uploadProgress = percentageValue,
+        error: () => { } //unsuccessful upload: do nothing with percentage
+      }
       );
 
-      this.uploadTask.snapshotChanges().subscribe(
-        () => { },
-        (error) => {
-          console.log("Unsuccessful Upload:")
-          console.log(error);
+      this.uploadTask.snapshotChanges().subscribe({
+        error: (error) => {
+          this.uiService.showSnackbar(error, undefined, 3000);
           this.resetUpload();
         },
-        () => { //on successful upload:
+        complete: () => { //on successful upload:
           this.onSuccessfulUpload(fileRef, newDocId, ver);
         }
-      );
+      });
     }
   }
 
@@ -96,9 +94,8 @@ export class UploadVersionSystemComponent {
     this.uploadComplete = true;
 
     // Get metadata properties:
-    fileRef.getMetadata().subscribe(
-      (metadata) => {
-        console.log(metadata); //for debuging
+    fileRef.getMetadata().subscribe({
+      next: (metadata) => {
         let newDoc: Doc = {
           docGroupId: this.groupId,
           version: ver,
@@ -111,10 +108,10 @@ export class UploadVersionSystemComponent {
         //update firestore:
         this.docService.insert(this.companyId, this.systemId, newDocId, newDoc);
       },
-      (error) => console.log(error)
+      error: (error) => this.uiService.showSnackbar(error, undefined, 3000)
+    }
     );
   }
-
 
 
   cancelUpload() {
@@ -131,15 +128,17 @@ export class UploadVersionSystemComponent {
     this.fileName = '';
     this.fileVersion.setValue("1.1");
   }
+
 }
 
 
-export function createUniqueVersionValidator(currentVersion: string[]): ValidatorFn{
-  return (control: AbstractControl) : ValidationErrors | null => {
+
+export function createUniqueVersionValidator(currentVersion: string[]): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
-    if(!value){
+    if (!value) {
       return null;
     }
-    return currentVersion.includes(value) ? {uniqueVersion: true}: null;
+    return currentVersion.includes(value) ? { uniqueVersion: true } : null;
   }
 }

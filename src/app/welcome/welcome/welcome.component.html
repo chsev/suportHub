@@ -1,17 +1,47 @@
 <div class="welcome" 
-    fxLayout="column" fxLayout.gt-md="row" 
-    fxLayoutGap = 30px fxLayoutGap.gt-md = 30px
-    fxLayoutAlign="center center">
-    <section>
+    fxLayout="column"   fxLayout.gt-md="row" 
+    fxLayoutGap=30px   fxLayoutGap.gt-md=30px
+    fxLayoutAlign="start center"   fxLayoutAlign.gt-md="center start"
+    style="padding: 0"   ngStyle.gt-md="padding-left: 100px; padding-right: 100px" >
+
+    <section fxLayout="column" style="max-width: 900px">
         <h1>ATIVIDADES</h1>
         <p>Confira atividades recentes do seu feed</p>
-    </section>
-    <section>
-        <h1>COMUNIDADE</h1>
-        <p>Conheça outras pessoas</p>
-    </section>
-    <section>
-        <h1>DISCUSSÕES</h1>
-        <p>Participe de discussões e encontre soluções para problemas comuns</p>
+    
+        <div *ngFor="let post of posts" style="text-align: start">
+            <mat-card class="post-card">
+
+                <div fxLayout="row" fxLayoutAlign="start center" (click)="viewPost(post.id!)">
+                    <h1>{{post.title}}</h1>
+                    <span style="flex: 1 1 auto;"></span>
+                    <button mat-icon-button (click)="viewPost(post.id!)">
+                        <mat-icon>open_in_new</mat-icon>
+                    </button>
+                </div>
+
+                <mat-card-header>
+                    <img mat-card-avatar class="avatar-image" [src]="getAuthor(post.usrId)?.photoUrl" >                
+                    <mat-card-title> {{getAuthor(post.usrId)?.name ?? 'user_name'}} </mat-card-title>
+                    <mat-card-subtitle>publicado em: {{toDate(post.created!)}}</mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content fxLayout="row" fxLayoutAlign="start center">
+                        <mat-chip-list>
+                            <mat-chip *ngFor="let tag of post.tags">{{tag}}</mat-chip>
+                        </mat-chip-list>
+                        <span style="flex: 1 1 auto;"></span>
+                        <button mat-button (click)="toggleLike(post.id!)">
+                            <mat-icon *ngIf="userLiked(post)">thumb_up_alt</mat-icon>
+                            <mat-icon *ngIf="!userLiked(post)">thumb_up_off_alt</mat-icon>
+                            <span>&nbsp; {{post.liked.length}}</span>
+                        </button>
+                        <button mat-button>
+                            <mat-icon>visibility</mat-icon>
+                            <span>&nbsp; {{post.viewed}}</span>
+                        </button>
+                </mat-card-content>
+            </mat-card>
+            <br>
+        </div>
     </section>
 </div>

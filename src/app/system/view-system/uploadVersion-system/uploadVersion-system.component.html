@@ -27,16 +27,16 @@
 
         <div fxLayout="row" fxLayoutAlign="center" fxLayoutGap="10px">
             <button *ngIf="!uploadComplete && !uploadProgress"
-                mat-mini-fab color="primary" [disabled]="!myFile || !fileVersion.valid" (click)="uploadFile()">
+                mat-fab color="primary" [disabled]="!myFile || !fileVersion.valid" (click)="uploadFile()">
                 <mat-icon>file_upload</mat-icon>
             </button>
 
             <button *ngIf="uploadProgress && !uploadComplete" 
-                mat-mini-fab color="warn" class="cancel-upload" (click)="cancelUpload()">
+                mat-fab color="warn" class="cancel-upload" (click)="cancelUpload()">
                 <mat-icon>cancel</mat-icon>
             </button>
 
-            <button *ngIf="uploadComplete" mat-mini-fab (click)="resetUpload()">
+            <button *ngIf="uploadComplete" mat-fab (click)="resetUpload()">
                 <mat-icon>check_circle</mat-icon>
             </button>
         </div>

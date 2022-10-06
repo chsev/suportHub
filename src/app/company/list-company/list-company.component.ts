@@ -45,22 +45,15 @@ export class ListCompanyComponent implements OnInit, OnDestroy, AfterViewInit {
   
   ngOnInit(): void {
     this.loadingSub = this.uiService.loadingStateChanged
-    .subscribe(isLoading => this.isLoading = isLoading);
+      .subscribe(isLoading => this.isLoading = isLoading);
     
     this.userDataChangedSub = this.accountService.userDataChanged
-    .subscribe( (userData: User) => {
-      this.user = userData;
-      // if(userData.companyId || userData.pendingApproval){
-      //   this.router.navigate(['company/welcome'])
-      // }
-    });
+      .subscribe( (userData: User) => this.user = userData);
 
-    // this.companyChangedSub = 
-    this.companyService.getPublicCompanies()
+    this.companyService.fetchPublicCompanies()
       .subscribe((companies: Company[]) => this.dataSource.data = companies);
     
     this.accountService.fetchUserData();
-    // this.companyService.fetchCompanies();
   }
 
   

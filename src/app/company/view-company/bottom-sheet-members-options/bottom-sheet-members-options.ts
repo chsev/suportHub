@@ -14,19 +14,17 @@ export class BottomSheetOverviewMembersOptions {
     private companyService: CompanyService
   ) { }
 
-  removeMember(event: MouseEvent): void {
+  removeMember(): void {
     this.companyService.removeMember(this.passedData.companyId, this.passedData.profile.id);
     this.dismiss();
-    // event.preventDefault();
   }
 
-  makeAdmin(event: MouseEvent): void {
+  makeAdmin(): void {
     this.companyService.addAdmin(this.passedData.companyId, this.passedData.profile.id);
     this.dismiss();
-    // event.preventDefault();
   }
 
-  removeAdmin(event: MouseEvent){
+  removeAdmin(){
     if( this.self() ){
       this.companyService.removeAdmin(this.passedData.companyId, this.passedData.profile.id);
     }

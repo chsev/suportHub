@@ -31,7 +31,6 @@ export class ViewTeamComponent implements OnInit {
   user: User | undefined;
   userIsAdmin = true;
   isLoading = false;
-  // showTeamCardContent = false;
 
   members: Profile[] | undefined;
   displayedColumnsMembers = ['name', 'email', 'position', 'expand'];
@@ -54,9 +53,8 @@ export class ViewTeamComponent implements OnInit {
   private membersSub: Subscription | undefined;
   private loadingSub: Subscription | undefined;
   private userDataChangedSub: Subscription | undefined;
-
   private waitingApprovalSub: Subscription | undefined;
-  // private membersSub: Subscription | undefined;
+
 
   constructor(
     private uiService: UiService,
@@ -95,7 +93,6 @@ export class ViewTeamComponent implements OnInit {
     this.teamSub = this.teamService.fetchTeam(state.companyId, state.teamId)
       .subscribe((teamData: Team) => {
         this.team = teamData;
-        // this.team.administrators = [];
         this.getMembersData(this.team.members ?? []);
         this.getSystemsData(this.team.systems ?? []);
         this.getWaitingApproval(this.team.waitingApproval ?? []);
@@ -118,7 +115,7 @@ export class ViewTeamComponent implements OnInit {
         if (usersList) {
           this.members = usersList;
           this.dataSourceMembers.data = usersList;
-          this.membersTable!.renderRows();
+          this.membersTable?.renderRows();
         }
       });
   }
@@ -133,7 +130,7 @@ export class ViewTeamComponent implements OnInit {
 
 
   private getSystemsData(systemsIds: string[]): void {
-    this.systemService.fetchSystemDocList(this.team?.companyId!, systemsIds)
+    this.systemService.getSystemList(this.team?.companyId!, systemsIds)
       .subscribe((systemsList) => {
         this.dataSourceSystems.data = systemsList;
         this.systemsTable?.renderRows();
@@ -144,8 +141,6 @@ export class ViewTeamComponent implements OnInit {
     this.postService.fetchTeamPosts(state.companyId, state.teamId)
       .subscribe( posts => {
         this.posts = posts;
-        // this.posts.push(...mockposts); //add mocks
-
         let authorsIds = [...new Set( this.posts.map(e => e.usrId) )]; //remove duplicates
         this.getAuthors(authorsIds);
       });
@@ -158,11 +153,6 @@ export class ViewTeamComponent implements OnInit {
         this.authors = profiles;
       });
   }
-
-  // private toUserFlaged(user: User): FlaggedUser {
-  //   let adminFlag: boolean = this.team?.administrators?.includes(user.id!) ? true : false;
-  //   return { ...user, isAdmin: adminFlag };
-  // }
 
 
   //==================
@@ -187,9 +177,8 @@ export class ViewTeamComponent implements OnInit {
       data: { team: this.team }
     });
     dialogRef.afterClosed().subscribe(answer => {
-      if (answer) {
-        console.log("Excluir!");
-        // this.teamService.remove(this.companyId!, this.team?.id!);
+      if (answer && this.companyId && this.team) {
+        this.teamService.delete(this.companyId!, this.team.id!);
       }
     });
 }
@@ -232,7 +221,7 @@ export class ViewTeamComponent implements OnInit {
       .subscribe((profilesList: Profile[]) => {
           this.waitingApproval = profilesList;
           this.dataSourceWaitingApp.data = profilesList;
-          this.waitingAppTable!.renderRows();
+          this.waitingAppTable?.renderRows();
       });
   }
 
@@ -241,7 +230,7 @@ export class ViewTeamComponent implements OnInit {
     let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
     if (this.companyId &&  this.team && i>-1) {
       this.dataSourceWaitingApp.data.splice(i, 1);
-      this.waitingAppTable!.renderRows();
+      this.waitingAppTable?.renderRows();
       this.teamService.acceptMember(this.companyId, this.team.id!, usrId);
     }
   }
@@ -251,11 +240,12 @@ export class ViewTeamComponent implements OnInit {
     let i = this.dataSourceWaitingApp.data.findIndex(e => e.id == usrId);
     if (this.companyId &&  this.team  && i>-1) {
       this.dataSourceWaitingApp.data.splice(i, 1);
-      this.waitingAppTable!.renderRows();
+      this.waitingAppTable?.renderRows();
       this.teamService.rejectMember(this.companyId, this.team.id!, usrId);
     }
   }
 
+  
   exitTeam(){
     if (this.companyId && this.team && this.user) {
       this.teamService.removeMember(this.companyId, this.team.id!, this.user.id!);
@@ -282,11 +272,10 @@ export class ViewTeamComponent implements OnInit {
   }
 
 
-  userViewed(postId: string): boolean {
-    // let i = this.posts.findIndex(e => e.id == postId);
-    // if (i > -1 && this.posts[i].viewed?.includes(this.user?.id!)) {
-    //   return true;
-    // }
+  userLiked(post: Post): boolean {
+    if (this.user && post) {
+      return post.liked.includes(this.user.id!);
+    }
     return false;
   }
 
@@ -297,7 +286,6 @@ export class ViewTeamComponent implements OnInit {
 
 
   onAddPost(){
-    // console.log("newpost acionado!");
     this.router.navigate(['post/new'], { 
       state: { 
         teamId: this.team!.id, 
@@ -306,23 +294,6 @@ export class ViewTeamComponent implements OnInit {
         type: 'teamPost'
       } });;
   }
+
+  
 }
-
-
-
-
-// @Component({
-//   selector: 'bottom-sheet-members-options-team',
-//   templateUrl: 'bottom-sheet-members-options-team.html',
-// })
-// export class BottomSheetMembersOptionsTeam {
-//   constructor(
-//     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-//     private _bottomSheetRef: MatBottomSheetRef<BottomSheetMembersOptionsTeam>
-//   ) { }
-
-//   openLink(event: MouseEvent): void {
-//     this._bottomSheetRef.dismiss();
-//     event.preventDefault();
-//   }
-// }

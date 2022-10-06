@@ -21,7 +21,7 @@ export class EditCompanyComponent implements OnInit {
   private userSub: Subscription | undefined;
   companyId: string | undefined;
   company: Company | undefined;
-  administrators: UntypedFormControl[] = [];//  = new UntypedFormControl('');
+  administrators: UntypedFormControl[] = [];
 
   companyForm: FormGroup = new UntypedFormGroup({
     name: new UntypedFormControl('', { validators: [Validators.required] }),
@@ -70,7 +70,7 @@ export class EditCompanyComponent implements OnInit {
   private fetchAdministrators(id: string){
       this.companyService.fetchCompanyData(id)
       .subscribe( (data) => {
-        this.accountService.fetchUserDocList(data.administrators ?? [])
+        this.accountService.fetchUserList(data.administrators ?? [])
         .subscribe( (usrList) =>{
           this.administrators = usrList.map( usr => new UntypedFormControl(`${usr.name} (${usr.email})`));
         } )

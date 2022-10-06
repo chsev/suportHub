@@ -24,7 +24,6 @@ export class EditPostComponent implements OnInit {
   originalMsg: Msg | undefined;
   companyId: string | undefined;
   teamId: string | undefined;
-  // usrId: string | undefined;
 
   @ViewChild('editor', { static: true }) editor!: QuillEditorComponent;
 
@@ -60,7 +59,6 @@ export class EditPostComponent implements OnInit {
   onSubmit(){
     let content = this.form.get('editor')?.value;
     let title = this.form.get('title')?.value;
-    console.log(content); //debug
     if(this.companyId && this.post && this.originalMsg){
       this.postService.update(this.companyId, this.post.id!, title, this.tags, this.originalMsg.id!, content)
     }

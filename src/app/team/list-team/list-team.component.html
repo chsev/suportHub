@@ -6,7 +6,6 @@
         <mat-cell *matCellDef="let element">{{ element.name }}</mat-cell>
     </ng-container>
 
-
     <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Descrição</mat-header-cell>
         <mat-cell *matCellDef="let element">{{ element.description }}</mat-cell>
@@ -17,24 +16,19 @@
         <mat-cell *matCellDef="let element"> {{element.members.length}} </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="nsystems">
+        <mat-header-cell *matHeaderCellDef> Sistemas </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.systems ? element.systems.length : 0}} </mat-cell>
+      </ng-container>
 
     <ng-container matColumnDef="button">
         <mat-header-cell *matHeaderCellDef>
-            <!-- <button mat-icon-button (click)="new()">
-                <mat-icon>add_box</mat-icon>
-            </button> -->
             <button mat-raised-button (click)="new()">
                 <mat-icon>group_add</mat-icon>
                 <span style="padding-left: 8px;">Nova Equipe</span>
               </button>
         </mat-header-cell>
         <mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="edit(element.id)">
-                <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="delete(element.companyId, element.id, element.name)">
-                <mat-icon>delete</mat-icon>
-            </button>
             <button mat-icon-button (click)="onViewTeam(element.id!)">
                 <mat-icon>open_in_new</mat-icon>
             </button>

@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { System } from 'src/app/shared/models/system.model';
 import { SystemService } from '../services/system.service';
 import { Location } from '@angular/common';
-import { Subscription } from 'rxjs';
 import { TeamService } from 'src/app/team/services/team.service';
 import { Team } from 'src/app/shared/models/team.model';
+
 
 @Component({
   selector: 'app-edit-system',
@@ -21,6 +21,7 @@ export class EditSystemComponent implements OnInit {
   })
   teamName = new UntypedFormControl('');
 
+
   constructor(
     private systemService: SystemService,
     private teamService: TeamService,
@@ -28,9 +29,10 @@ export class EditSystemComponent implements OnInit {
     private location: Location
   ) { }
 
+
   ngOnInit(): void {
     let state: any = this.location.getState();
-    this.systemService.fetchSystemDoc(state.companyId, state.systemId)
+    this.systemService.getSystem(state.companyId, state.systemId)
       .subscribe((systemData: System) => {
         this.system = systemData;
         this.systemForm.setValue({
@@ -43,7 +45,7 @@ export class EditSystemComponent implements OnInit {
   }
 
   fetchTeamName(companyId: string, teamId: string) {
-    let sub = this.teamService.fetchTeamDoc(companyId, teamId)
+    let sub = this.teamService.fetchTeam(companyId, teamId)
       .subscribe((teamData: Team) => {
         this.teamName.setValue(teamData.name!);
         sub?.unsubscribe();
@@ -51,6 +53,7 @@ export class EditSystemComponent implements OnInit {
       );
   }
 
+  
   onSubmit() {
     this.systemService.update( this.system?.companyId!, this.system?.id!, {...this.systemForm.value });
     this.router.navigate(["system/list"]);

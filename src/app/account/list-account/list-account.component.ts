@@ -20,7 +20,6 @@ import { EditPositionComponent } from './edit-position/edit-position.component';
   styleUrls: ['./list-account.component.css']
 })
 export class ListAccountComponent implements OnInit {
-  avatarSrc = "assets/images/profile.png"; //for testing
   company: Company | undefined;
   profile: Profile | undefined;
   private userDataChangedSub!: Subscription;
@@ -115,7 +114,6 @@ export class ListAccountComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // console.log("Redefinindo senha...");
         this.authService.sendPasswordResetEmail(this.profile?.email!);
       }
     })
@@ -134,7 +132,7 @@ export class ListAccountComponent implements OnInit {
   }
 
   openEditPhotoDialog() {
-    const dialogRef: MatDialogRef<EditPhotoComponent> = this.dialog.open(EditPhotoComponent, {
+    this.dialog.open(EditPhotoComponent, {
       data: { profile: this.profile }
     });
   }

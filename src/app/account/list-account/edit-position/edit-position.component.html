@@ -2,7 +2,7 @@
 <mat-dialog-content>
     <p>Editar cargo "{{passedData.position}}" ?</p>
 
-    <form fxLayout="column" fxLayoutAlign="center start" [formGroup]="positionForm" fxLayoutGap="15px">
+    <form fxLayout="column" fxLayoutAlign="center start" [formGroup]="form" fxLayoutGap="15px">
         <mat-form-field>
             <input matInput type="text" placeholder="cargo" formControlName="position">
         </mat-form-field>
@@ -10,6 +10,6 @@
 
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="positionForm.controls['position'].value">Salvar</button>
+    <button mat-button [mat-dialog-close]="form.controls['position'].value">Salvar</button>
     <button mat-button (click)="onCancel()">Cancela</button>
 </mat-dialog-actions>

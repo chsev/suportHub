@@ -25,6 +25,7 @@ export class CreateSystemComponent implements OnInit {
     private location: Location
   ) { }
 
+
   ngOnInit(): void {
     this.systemForm = new UntypedFormGroup({
       name: new UntypedFormControl('',  {validators: [Validators.required]}),
@@ -34,14 +35,17 @@ export class CreateSystemComponent implements OnInit {
     let state: any = this.location.getState();
     this.companyId = state.companyId;
     this.teamId = state.teamId;
-    // this.systemForm.controls['team'].setValue(state.teamId)
-
-
-    this.teamService.fetchTeamDoc(state.companyId, state.teamId)
-    .subscribe( (teamData: Team) => {
-        this.teamName.setValue(teamData.name!);
-      })
+    this.fetchTeam(state);
   }
+
+
+  private fetchTeam(state: any) {
+    this.teamService.fetchTeam(state.companyId, state.teamId)
+      .subscribe((teamData: Team) => {
+        this.teamName.setValue(teamData.name!);
+      });
+  }
+
 
   async onSubmit(){
     let newid = await this.systemService.insert({...this.systemForm.value, teamId: this.teamId, companyId: this.companyId})
@@ -51,6 +55,7 @@ export class CreateSystemComponent implements OnInit {
     this.router.navigate(["system/list"]);
   }
 
+  
   onCancel(){
     this.router.navigate(["system/list"]);
   }

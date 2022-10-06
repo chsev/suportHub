@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CreateSystemComponent } from './create-system/create-system.component';
 import { EditSystemComponent } from './edit-system/edit-system.component';
-import { DeleteSystemComponent } from './delete-system/delete-system.component';
 import { ListSystemComponent } from './list-system/list-system.component';
 import { SystemService } from './services/system.service';
 import { RouterModule } from '@angular/router';
@@ -15,6 +14,7 @@ import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { UploadDocSystemComponent } from './view-system/uploadDoc-system/uploadDoc-system.component';
 import { DocService } from './services/doc.service';
 import { UploadVersionSystemComponent } from './view-system/uploadVersion-system/uploadVersion-system.component';
+import { ConfirmExclusionSystemComponent } from './view-system/confirm-exclusion-system/confirm-exclusion-system.component';
 
 
 
@@ -22,11 +22,11 @@ import { UploadVersionSystemComponent } from './view-system/uploadVersion-system
   declarations: [
     CreateSystemComponent,
     EditSystemComponent,
-    DeleteSystemComponent,
     ListSystemComponent,
     ViewSystemComponent,
     UploadDocSystemComponent,
-    UploadVersionSystemComponent
+    UploadVersionSystemComponent,
+    ConfirmExclusionSystemComponent
   ],
   imports: [
     CommonModule,

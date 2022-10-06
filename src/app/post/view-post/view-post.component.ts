@@ -126,10 +126,17 @@ export class ViewPostComponent implements OnInit {
     }
   }
 
+  
+  onDelete(){
+    if(this.companyId && this.post){
+      this.postService.delete(this.companyId, this.post.id!);
+    }
+  }
+
 
   toggleLike() {
     if (this.companyId && this.post && this.user) {
-      this.postService.toggleLike(this.companyId!, this.post.id!, this.user.id!);
+      this.postService.toggleLike(this.companyId, this.post.id!, this.user.id!);
     }
   }
 
