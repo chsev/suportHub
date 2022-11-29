@@ -20,6 +20,7 @@ import { User } from 'src/app/shared/models/user.model';
 import { Team } from 'src/app/shared/models/team.model';
 import { TeamService } from 'src/app/team/services/team.service';
 import { ConfirmExclusionSystemComponent } from './confirm-exclusion-system/confirm-exclusion-system.component';
+import { AccountService } from 'src/app/account/services/account.service';
 
 
 @Component({
@@ -42,7 +43,6 @@ export class ViewSystemComponent implements OnInit {
   private loadingSub: Subscription | undefined;
   private systemSub: Subscription | undefined;
   isLoading = false;
-  userIsAdmin = true;
 
   docDataGrouped: DocGroup[] = [];
   dataSourceDocs = new MatTableDataSource<DocGroup>();
@@ -55,6 +55,7 @@ export class ViewSystemComponent implements OnInit {
 
   constructor(
     private location: Location,
+    private accountService: AccountService,
     private systemService: SystemService,
     private docService: DocService,
     private teamService: TeamService,
@@ -70,6 +71,8 @@ export class ViewSystemComponent implements OnInit {
 
     this.loadingSub = this.uiService.loadingStateChanged
       .subscribe(isLoading => this.isLoading = isLoading);
+
+    this.getUser();
 
     this.systemSub = this.systemService
       .getSystem(state.companyId, state.systemId).subscribe(
@@ -89,6 +92,14 @@ export class ViewSystemComponent implements OnInit {
   ngOnDestroy(): void {
     this.loadingSub?.unsubscribe();
     this.systemSub?.unsubscribe();
+  }
+
+  
+  private getUser() {
+    this.accountService.userDataChanged.subscribe( 
+        (userData: User) => this.user = userData
+      );
+    this.accountService.fetchUserData();
   }
 
 
@@ -175,8 +186,9 @@ export class ViewSystemComponent implements OnInit {
       data: { system: this.system }
     });
     dialogRef.afterClosed().subscribe(answer => {
-      if (answer && this.system) {
+      if (answer && this.system && this.team) {
         this.systemService.delete(this.system.companyId, this.system.id!);
+        this.teamService.removeSystem(this.system.companyId, this.team.id!, this.system.id! );
         this.router.navigate(['system']);
       }
     });
@@ -211,8 +223,11 @@ export class ViewSystemComponent implements OnInit {
   }
 
 
-  isSystemAdmin(userId: string) {
-    return true;
+  isSystemAdmin(): boolean {
+    if(this.user){
+      return this.team?.administrators?.includes(this.user.id!) ?? false;
+    }
+    return false;
   }
 
 

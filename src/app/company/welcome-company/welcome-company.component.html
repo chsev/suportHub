@@ -7,7 +7,7 @@
                 <mat-icon>info</mat-icon>
             </div>
             <div fxFlex>
-                <span>Você solicitou permissão para ingressar no grupo privado da empresa
+                <span>Você solicitou permissão para ingressar no grupo fechado da empresa
                     <strong>{{pendingCompany?.name}}</strong>. A solicitação ainda está pendente. </span>
             </div>
         </mat-card-content>
@@ -22,7 +22,7 @@
     <div *ngIf="!user?.pendingApproval && !user?.companyId">
         <mat-card fxLayoutGap="8px" fxLayout="row" fxLayoutAlign="center center">
             <mat-icon>info</mat-icon>
-            <span>Parece que você não se juntou à nenhuma empresa ainda</span>
+            <span>Parece que você não se juntou a nenhuma empresa ainda</span>
         </mat-card>
 
         <br><br>

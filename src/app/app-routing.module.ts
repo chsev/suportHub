@@ -11,7 +11,7 @@ import { PostRoutingModule } from './post/post-routing.module';
 
 const routes: Routes = [
   { path: '', redirectTo: 'welcome', pathMatch: 'full' },
-  { path: 'welcome', component: WelcomeComponent, },
+  { path: 'welcome', component: WelcomeComponent, canActivate: [AuthGuard]},
   { path: '**', redirectTo: 'welcome'},
 
 ];

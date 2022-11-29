@@ -78,6 +78,12 @@ export class TeamService {
     });
   }
 
+  removeSystem(companyId: string, teamId: string, systemId: string){
+    this.getTeamRef(companyId, teamId).update({
+      systems: arrayRemove(systemId)
+    });
+  }
+
 
   private getTeamRef<T>(companyId: string, teamId: string) {
     return this.db.collection('companies').doc(companyId)
@@ -142,6 +148,13 @@ export class TeamService {
     this.getTeamRef(companyId, teamId).update({
       waitingApproval: arrayRemove(userId)
     });
+  }
+
+  removeFromAll(companyId: string, userId: string){
+    this.fetchUserTeams(companyId, userId)
+    .subscribe( 
+      teams => teams.forEach(t => this.removeMember(companyId, t.id!, userId) )
+    );
   }
 
 

@@ -6,16 +6,16 @@
     </mat-card-header>
     <span style="flex: 1 1 auto;"></span>
 
-    <button mat-icon-button [matMenuTriggerFor]="systemMenu">
+    <button mat-icon-button *ngIf="isSystemAdmin()" [matMenuTriggerFor]="systemMenu">
       <mat-icon> more_vert </mat-icon>
     </button>
 
     <mat-menu #systemMenu="matMenu" xPosition="before">
-      <button *ngIf="isSystemAdmin(user?.id!)" mat-menu-item (click)="onEdit()">
+      <button *ngIf="isSystemAdmin()" mat-menu-item (click)="onEdit()">
         <mat-icon>edit</mat-icon>
         <span>Editar</span>
       </button>
-      <button *ngIf="isSystemAdmin(user?.id!)" mat-menu-item (click)="onDelete()">
+      <button *ngIf="isSystemAdmin()" mat-menu-item (click)="onDelete()">
         <mat-icon>delete_forever</mat-icon>
         <span>Excluir</span>
       </button>
@@ -146,12 +146,12 @@
   <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
 </table>
 
-
-<!-- <br><br>
+<!-- 
+<br><br>
 <p>view-system - System data:</p>
 <p>{{ system | json }}</p>
 
 
 <br><br>
-<p>view-system - System data:</p>
-<p>{{ documents | json }}</p> -->
+<p>team</p>
+<p>{{ team | json }}</p> -->

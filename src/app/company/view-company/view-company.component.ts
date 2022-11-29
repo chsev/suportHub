@@ -179,6 +179,7 @@ export class ViewCompanyComponent implements OnInit {
 
   exitCompany() {
     if (this.company && this.user) {
+      this.teamService.removeFromAll(this.company.id!, this.user.id!);
       this.companyService.removeMember(this.company.id!, this.user.id!);
       this.router.navigate(['company']);
     }

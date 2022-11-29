@@ -130,6 +130,7 @@ export class ViewPostComponent implements OnInit {
   onDelete(){
     if(this.companyId && this.post){
       this.postService.delete(this.companyId, this.post.id!);
+      this.router.navigate(['welcome']);
     }
   }
 
